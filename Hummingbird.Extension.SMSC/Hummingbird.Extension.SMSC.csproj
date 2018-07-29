@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DE8208F8-28D6-44A3-B0CA-2C69C5AE4729}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Hummingbird.Extension.SMSC</RootNamespace>
+    <AssemblyName>Hummingbird.Extension.SMSC</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Hummingbird.Extension.SMSC.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.93.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.93.0\lib\net40\ClosedXML.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.8.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.8.1\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.0.3.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.0.3\lib\net20\ExcelNumberFormat.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FastMember.Signed, Version=1.3.0.0, Culture=neutral, PublicKeyToken=9e8f22703bef9a29, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastMember.Signed.1.3.0\lib\net45\FastMember.Signed.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Hummingbird.TestFramework, Version=1.0.6784.39199, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hummingbird.TestFramework.1.0.6784.39199\lib\net45\Hummingbird.TestFramework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Hummingbird.UI, Version=1.0.6775.1725, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hummingbird.UI.1.0.6775.1725\lib\net45\Hummingbird.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Channels" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MessageBuffers.cs" />
+    <Compile Include="EmiMessage.cs" />
+    <Compile Include="EmiMessageType.cs" />
+    <Compile Include="EmiProtocol.cs" />
+    <Compile Include="EmiService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SmsMo.cs" />
+    <Compile Include="SmsServer.cs" />
+    <Compile Include="SmsSr.cs" />
+    <Compile Include="Socket\AuthenticateCallbackData.cs" />
+    <Compile Include="Socket\BaseDisposable.cs" />
+    <Compile Include="Socket\BaseFinalizable.cs" />
+    <Compile Include="Socket\BaseSocketConnection.cs" />
+    <Compile Include="Socket\BaseSocketConnectionCreator.cs" />
+    <Compile Include="Socket\BaseSocketConnectionHost.cs" />
+    <Compile Include="Socket\BufferUtils.cs" />
+    <Compile Include="Socket\ClientSocketConnection.cs" />
+    <Compile Include="Socket\ConnectionEventArgs.cs" />
+    <Compile Include="Socket\CryptUtils.cs" />
+    <Compile Include="Socket\ExceptionEventArgs.cs" />
+    <Compile Include="Socket\MarshalEx.cs" />
+    <Compile Include="Socket\MessageBuffer.cs" />
+    <Compile Include="Socket\MessageEventArgs.cs" />
+    <Compile Include="Socket\ProxyInfo.cs" />
+    <Compile Include="Socket\ProxyUtils.cs" />
+    <Compile Include="Socket\ServerSocketConnection.cs" />
+    <Compile Include="Socket\SocketClient.cs" />
+    <Compile Include="Socket\SocketClientSync.cs" />
+    <Compile Include="Socket\SocketConnector.cs" />
+    <Compile Include="Socket\SocketListener.cs" />
+    <Compile Include="Socket\SocketServer.cs" />
+    <Compile Include="Socket\SocketsExTypes.cs" />
+    <Compile Include="Socket\ThreadEx.cs" />
+    <Compile Include="Socket\WriteData.cs" />
+    <Compile Include="ViewSMS.xaml.cs">
+      <DependentUpon>ViewSMS.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="hummingbird.extension.snk" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ViewSMS.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ExtensionDefinition.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /y "$(TargetDir)\Hummingbird.Extension.SMSC.dll" "C:\Users\x_sli\AppData\Roaming\Hummingbird\Extensions\a775057e-3fea-4c0f-bf6e-1b3d2dd877d3\Hummingbird.Extension.SMSC.dll"
+copy /y "$(TargetDir)\Hummingbird.Extension.SMSC.pdb" "C:\Users\x_sli\AppData\Roaming\Hummingbird\Extensions\a775057e-3fea-4c0f-bf6e-1b3d2dd877d3\Hummingbird.Extension.SMSC.pdb"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

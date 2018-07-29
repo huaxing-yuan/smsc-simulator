@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExtensionDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hummingbird-alm.com/testframework/201610">
+  <Name>Hummingbird SMS Simulator</Name>
+  <Id>a775057e-3fea-4c0f-bf6e-1b3d2dd877d3</Id>
+  <Version Major="1" Minor="0" Build="6780" />
+  <MinFrameworkVersion Major="1" Minor="0" Build="0" />
+  <MaxFrameworkVersion Major="1" Minor="99" Build="99999" />
+  <Company>Huaxing YUAN</Company>
+  <Description>A SMS Center simulator that simulates the UCP protocol. </Description>
+  <Copyright>Copyright 2018 Huaxing YUAN, All rights reserved.</Copyright>
+  <MainDllFile>Hummingbird.Extension.SMSC.dll</MainDllFile>
+  <AdditionalFiles>
+    <File>Hummingbird.Extension.SMSC.pdb</File>
+  </AdditionalFiles>
+</ExtensionDefinition>

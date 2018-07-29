@@ -3,3 +3,6 @@
 ################################################################################
 
 /.vs/Hummingbird.Extensions/v15
+/Hummingbird.Extension.SMSC/bin/Debug
+/Hummingbird.Extension.SMSC/obj/Debug
+/packages

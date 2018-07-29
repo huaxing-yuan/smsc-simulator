@@ -1,0 +1,42 @@
+﻿<modern1:CustomMessageViewer
+    xmlns:modern1="clr-namespace:Hummingbird.TestFramework.Extensibility;assembly=Hummingbird.TestFramework" x:Class="Hummingbird.Extension.SMSC.ViewSMS"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="UCP Trame:" Margin="10,5" />
+        <TextBox Grid.Column="1" VerticalAlignment="Center" Grid.ColumnSpan="2" IsReadOnly="True" x:Name="txtTrameEMI"/>
+        <ListView Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" x:Name="viewAnalyse" >
+            <ListView.View>
+                <GridView AllowsColumnReorder="false"  >
+                    <GridViewColumn Header="Name" Width="300" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Value" Width="460">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Value}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </Grid>
+</modern1:CustomMessageViewer>
