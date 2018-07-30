@@ -31,15 +31,12 @@ namespace Hummingbird.Extension.SMSC
 
         private void ParseObject(object o)
         {
-            EMIProtocol eo = (EMIProtocol)o;
+            EmiProtocol eo = (EmiProtocol)o;
             trame = eo.OriginalTrame;
             txtTrameEMI.Text = trame;
             try
             {
                 string operation = eo.OT;
-                string response = string.Empty;
-                string SR = string.Empty;
-
 
                 if (operation != null)
                 {
@@ -51,7 +48,7 @@ namespace Hummingbird.Extension.SMSC
 
                         //CHECK IF THE MT IS PING OR ACK?
                         string MSISDN = eo.AdC;
-                        if (MSISDN == string.Empty)
+                        if (string.IsNullOrEmpty(MSISDN))
                         {
                             if (eo.OR == "O") messageType = EmiMessageType.PING;
                             else messageType = EmiMessageType.PING_ACK;
@@ -83,7 +80,7 @@ namespace Hummingbird.Extension.SMSC
         }
 
         #region SMSC CONSTANTS
-        public static string[] rsns = {
+        private static string[] rsns = {
             "000 Unknown subscriber",
             "001 Service temporary not available",
             "002 Service temporary not available",
@@ -134,13 +131,13 @@ namespace Hummingbird.Extension.SMSC
             "208 Invalid message type indicator",
         };
 
-        public static string[] dsts = {
+        private static string[] dsts = {
             "0 - Delivered",
             "1 - Buffered",
             "2 - Not delivered"
         };
 
-        public static string[] ecs = {
+        private static string[] ecs = {
             "01 - Checksum error",
             "02 - Syntax error",
             "03 - Operation not supported by system",
@@ -179,12 +176,12 @@ namespace Hummingbird.Extension.SMSC
             "38 - Message forwarded",
         };
 
-        public static string[] nrqs ={
+        private static string[] nrqs ={
             "0 - NAdC not used",
             "1 - NAdC used"
         };
 
-        public static string[] nts = {
+        private static string[] nts = {
             "0 - default value",
             "1 - Delivery Notification",
             "2 - Non-delivery notification",
@@ -195,7 +192,7 @@ namespace Hummingbird.Extension.SMSC
             "7 - all"
         };
 
-        public static string[] npids = {
+        private static string[] npids = {
             "0100 - Mobile Station",
             "0122 - Fax Group 3",
             "0131 - X.400",
@@ -206,9 +203,9 @@ namespace Hummingbird.Extension.SMSC
             "0539 - PC appl. over TCP/IP"
         };
 
-        public static string[] lpids = npids;
+        private static string[] lpids = npids;
 
-        public static string[] rpids = {
+        private static string[] rpids = {
             "0000 - SME to SME: implicit, device type is specific to this SC, or can be concluded on the basis of the address",
             "0001 - SME to SME: telex (or teletex reduced to telex format)",
             "0002 - SME to SME: group 3 telefax",
@@ -258,35 +255,35 @@ namespace Hummingbird.Extension.SMSC
             "0127 - SIM Data Download"
         };
 
-        public static string[] mts = {
+        private static string[] mts = {
             "2 - Numeric message",
             "3 - Alphanumeric message encoded into IRA characters.",
             "4 - TD message encoded into IRA characters"
         };
 
-        public static string[] otoas = {
+        private static string[] otoas = {
             "1139 - NPI telephone and TON international",
             "5039 - Alphanumeric address"
         };
 
-        public static string[] dirs ={
+        private static string[] dirs ={
             "O - Request",
             "R - Reply"
         };
 
-        public static string[] otons ={
+        private static string[] otons ={
             "1 - International number (starts with the country code)",
             "2 - National number (default value if omitted)",
             "6 - Abbreviated number (registered large account identification)"
         };
 
-        public static string[] onpis = {
+        private static string[] onpis = {
             "1 - E.164 address (default value if omitted)",
             "3 - X121 address",
             "5 - SMSC specific: Private (TCP/IP address/abbreviated number)"
         };
 
-        public static string[] styps = {
+        private static string[] styps = {
             "1 - open session",
             "2 - reserved",
             "3 - change password",
@@ -295,12 +292,12 @@ namespace Hummingbird.Extension.SMSC
             "6 - change provisioning password"
         };
 
-        public static string[] opids = {
+        private static string[] opids = {
                 "00 - Mobile station",
                 "39 - PC application"
         };
 
-        public static string[] opers = {
+        private static string[] opers = {
                 "51 - MT, Submit Short Message operation",
                 "52 - MO, Delivery Short Message operation",
                 "53 - SR, Delivery notification operation",
@@ -314,13 +311,13 @@ namespace Hummingbird.Extension.SMSC
 
         };
 
-        public static string[] MessageTypes = {
+        private static string[] MessageTypes = {
                 "00 - Short Message (Default)",
                 "01 - Delivery Acknowledgement message type (read receipt)",
                 "02 - Manual Acknowledgement message type",
             };
 
-        public static string[] UDH = {
+        private static string[] UDH = {
             "00 - Concatenated short messages, 8-bit reference number",
             "01 - Special SMS Message Indication",
             "02 - Reserved",
@@ -361,7 +358,7 @@ namespace Hummingbird.Extension.SMSC
             "25 - National Language Locking Shift"
         };
 
-        public static string[] DCS = {
+        private static string[] DCS = {
             "00 - GSM 7 bit default alphabet, no class meaning",
             "01 - GSM 7 bit default alphabet, no class meaning",
             "02 - GSM 7 bit default alphabet, no class meaning",
@@ -428,33 +425,33 @@ namespace Hummingbird.Extension.SMSC
             "F7 - 8bit data, Class 3",
         };
 
-        public static string[] PIS = {
+        private static string[] PIS = {
             "00 Not Restricted (Default)",
             "01 Restricted",
             "02 Confidential",
             "03 Secret"
         };
 
-        public static string[] UIS = {
+        private static string[] UIS = {
             "00 Bulk",
             "01	Normal (Default)",
             "02 Urgent",
             "03 Very Urgent",
         };
 
-        public static string[] ARS = {
+        private static string[] ARS = {
             "00 No Acknowledgement requested (Default)",
             "01 Delivery Acknowledgement requested (read receipt)",
             "02 Manual Acknowledgement requested",
             "03 Both delivery and Manual Acknowledgement requested"
         };
 
-        public static string[] MUS = {
+        private static string[] MUS = {
             "00 New (Default)",
             "01 Replace in SMSC and SME"
         };
 
-        public static string[] SSIS = {
+        private static string[] SSIS = {
             "00 non-Single Shot short message (Default)",
             "01 Single Shot short message"
         };
@@ -501,23 +498,22 @@ namespace Hummingbird.Extension.SMSC
 
             string decodedMsg = string.Empty;
 
-            viewAnalyse.Items.Add(new Variable("Direction", getValueFrom(dirs, DIR)));
-            viewAnalyse.Items.Add(new Variable("Operation", getValueFrom(opers, OPER)));
+            viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
+            viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPER)));
 
             string sAdC = AdC;
             string sOAdC = OAdC;
             try
             {
 
-                int test;
-                if (!int.TryParse(AdC, out test))
+                if (!int.TryParse(AdC, out int test))
                 {
-                    sAdC += " (Decoded value: " + EMIProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
+                    sAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
                 }
 
                 if (!int.TryParse(OAdC, out test))
                 {
-                    sOAdC += " (Decoded value: " + EMIProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
+                    sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
                 }
             }
             catch { }
@@ -525,18 +521,18 @@ namespace Hummingbird.Extension.SMSC
             viewAnalyse.Items.Add(new Variable("AdC - Address code recipient for the SM", sAdC));
             viewAnalyse.Items.Add(new Variable("OAdC - Address code originator", sOAdC));
             viewAnalyse.Items.Add(new Variable("AC - Authentication code originator", AC));
-            viewAnalyse.Items.Add(new Variable("NRq - Notification Request", getValueFrom(nrqs, NRq)));
+            viewAnalyse.Items.Add(new Variable("NRq - Notification Request", GetValueFrom(nrqs, NRq)));
             viewAnalyse.Items.Add(new Variable("NAdC - Notification Address", NAdC));
-            viewAnalyse.Items.Add(new Variable("NT - Notification Type", getValueFrom(nts, NT)));
-            viewAnalyse.Items.Add(new Variable("NPID - Notification PID value", getValueFrom(npids, NPID)));
+            viewAnalyse.Items.Add(new Variable("NT - Notification Type", GetValueFrom(nts, NT)));
+            viewAnalyse.Items.Add(new Variable("NPID - Notification PID value", GetValueFrom(npids, NPID)));
             viewAnalyse.Items.Add(new Variable("LRq - Last Resort Address request", LRq));
             viewAnalyse.Items.Add(new Variable("LRAd - Last Resort Address", LRAd));
-            viewAnalyse.Items.Add(new Variable("LPID - LRAD PID value", getValueFrom(lpids, LPID)));
+            viewAnalyse.Items.Add(new Variable("LPID - LRAD PID value", GetValueFrom(lpids, LPID)));
             viewAnalyse.Items.Add(new Variable("DD - Deferred Delivery requested", DD));
-            viewAnalyse.Items.Add(new Variable("DDT - Deferred delivery time", getTime(DDT)));
-            viewAnalyse.Items.Add(new Variable("VP - Validity period", getTime(VP)));
-            viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", getValueFrom(rpids, RPID)));
-            viewAnalyse.Items.Add(new Variable("MT - Message Type", getValueFrom(mts, MT)));
+            viewAnalyse.Items.Add(new Variable("DDT - Deferred delivery time", GetTime(DDT)));
+            viewAnalyse.Items.Add(new Variable("VP - Validity period", GetTime(VP)));
+            viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", GetValueFrom(rpids, RPID)));
+            viewAnalyse.Items.Add(new Variable("MT - Message Type", GetValueFrom(mts, MT)));
             switch (MT)
             {
                 case "2":
@@ -559,22 +555,22 @@ namespace Hummingbird.Extension.SMSC
 
             if (bit == 16)
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EMIProtocol.decode(decodedMsg.ToCharArray()))));
+                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(decodedMsg.ToCharArray()))));
             }
             else if (bit == 7)
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EMIProtocol.GSM7HexToString(decodedMsg)));
+                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EmiProtocol.GSM7HexToString(decodedMsg)));
             }
             else
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EMIProtocol.GSM8HexToString(decodedMsg)));
+                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EmiProtocol.GSM8HexToString(decodedMsg)));
             }
 
             viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
             viewAnalyse.Items.Add(new Variable("PR - Priority Requested", PR));
             viewAnalyse.Items.Add(new Variable("MCLs - Message Class", MCLs));
             viewAnalyse.Items.Add(new Variable("RPI - Reply Path", RPI));
-            viewAnalyse.Items.Add(new Variable("OTOA - Originator Type Of Address", getValueFrom(otoas, OTOA)));
+            viewAnalyse.Items.Add(new Variable("OTOA - Originator Type Of Address", GetValueFrom(otoas, OTOA)));
             viewAnalyse.Items.Add(new Variable("XSer - Extra Services", XSer));
             AnalyseXser(XSer);
         }
@@ -609,12 +605,12 @@ namespace Hummingbird.Extension.SMSC
             string decodedMsg = string.Empty;
 
 
-            viewAnalyse.Items.Add(new Variable("Direction", getValueFrom(dirs, DIR)));
-            viewAnalyse.Items.Add(new Variable("Operation", getValueFrom(opers, OPER)));
+            viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
+            viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPER)));
             viewAnalyse.Items.Add(new Variable("AdC - Address code recipient for the SM", AdC));
             viewAnalyse.Items.Add(new Variable("OAdC - Address code originator", OAdC));
-            viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", getValueFrom(rpids, RPID)));
-            viewAnalyse.Items.Add(new Variable("SCTS - Service Centre Time Stamp", getTime(SCTS)));
+            viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", GetValueFrom(rpids, RPID)));
+            viewAnalyse.Items.Add(new Variable("SCTS - Service Centre Time Stamp", GetTime(SCTS)));
             viewAnalyse.Items.Add(new Variable("MT - Message Type", MT));
             switch (MT)
             {
@@ -638,15 +634,15 @@ namespace Hummingbird.Extension.SMSC
 
             if (bit == 16)
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EMIProtocol.decode(decodedMsg.ToCharArray()))));
+                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(decodedMsg.ToCharArray()))));
             }
             else if (bit == 7)
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EMIProtocol.GSM7HexToString(decodedMsg)));
+                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EmiProtocol.GSM7HexToString(decodedMsg)));
             }
             else
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EMIProtocol.GSM8HexToString(decodedMsg)));
+                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EmiProtocol.GSM8HexToString(decodedMsg)));
             }
 
             viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
@@ -693,36 +689,35 @@ namespace Hummingbird.Extension.SMSC
             try
             {
 
-                int test;
-                if (!int.TryParse(AdC, out test))
+                if (!int.TryParse(AdC, out int test))
                 {
-                    sAdC += " (Decoded value: " + EMIProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
+                    sAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
                 }
 
                 if (!int.TryParse(OAdC, out test))
                 {
-                    sOAdC += " (Decoded value: " + EMIProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
+                    sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
                 }
             }
             catch { }
 
 
-            viewAnalyse.Items.Add(new Variable("Direction", getValueFrom(dirs, DIR)));
-            viewAnalyse.Items.Add(new Variable("Operation", getValueFrom(opers, OPER)));
+            viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
+            viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPER)));
             viewAnalyse.Items.Add(new Variable("AdC - Address code recipient for the SM", sAdC));
             viewAnalyse.Items.Add(new Variable("OAdC - Address code originator", sOAdC));
-            viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", getValueFrom(rpids, RPID)));
-            viewAnalyse.Items.Add(new Variable("SCTS - Service Centre Time Stamp", getTime(SCTS)));
-            viewAnalyse.Items.Add(new Variable("Dst - Delivery status", getDst(Dst)));
+            viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", GetValueFrom(rpids, RPID)));
+            viewAnalyse.Items.Add(new Variable("SCTS - Service Centre Time Stamp", GetTime(SCTS)));
+            viewAnalyse.Items.Add(new Variable("Dst - Delivery status", GetDst(Dst)));
             if (Dst != "0")
             {
-                viewAnalyse.Items.Add(new Variable("Rsn - Reason code", getRsn(Rsn)));
+                viewAnalyse.Items.Add(new Variable("Rsn - Reason code", GetRsn(Rsn)));
             }
             else
             {
                 viewAnalyse.Items.Add(new Variable("Rsn - Reason code", Rsn));
             }
-            viewAnalyse.Items.Add(new Variable("DSCTS - Delivery time stamp", getTime(DSCTS)));
+            viewAnalyse.Items.Add(new Variable("DSCTS - Delivery time stamp", GetTime(DSCTS)));
 
             viewAnalyse.Items.Add(new Variable("MT - Message Type", MT));
             switch (MT)
@@ -747,15 +742,15 @@ namespace Hummingbird.Extension.SMSC
 
             if (bit == 16)
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EMIProtocol.decode(decodedMsg.ToCharArray()))));
+                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(decodedMsg.ToCharArray()))));
             }
             else if (bit == 7)
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EMIProtocol.GSM7HexToString(decodedMsg)));
+                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EmiProtocol.GSM7HexToString(decodedMsg)));
             }
             else
             {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EMIProtocol.GSM8HexToString(decodedMsg)));
+                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EmiProtocol.GSM8HexToString(decodedMsg)));
             }
 
             viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
@@ -772,8 +767,8 @@ namespace Hummingbird.Extension.SMSC
             string ACK = pairs[4];
 
 
-            viewAnalyse.Items.Add(new Variable("Direction", getValueFrom(dirs, DIR)));
-            viewAnalyse.Items.Add(new Variable("Operation", getValueFrom(opers, OPER)));
+            viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
+            viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPER)));
             viewAnalyse.Items.Add(new Variable("ACK/NACK", (ACK.ToUpper() == "A" ? "A - ACK" : "N - NACK")));
             if (OPER == "60" || OPER == "61")
             {
@@ -786,7 +781,7 @@ namespace Hummingbird.Extension.SMSC
                 {
                     string EC = pairs[5];
                     string SM = pairs[6];
-                    viewAnalyse.Items.Add(new Variable("EC - Error code", getEC(EC)));
+                    viewAnalyse.Items.Add(new Variable("EC - Error code", GetEC(EC)));
                     viewAnalyse.Items.Add(new Variable("SM - System message", SM));
                 }
 
@@ -802,24 +797,19 @@ namespace Hummingbird.Extension.SMSC
                 }
                 else
                 {
-                    viewAnalyse.Items.Add(new Variable("EC - Error code", getEC(EC)));
+                    viewAnalyse.Items.Add(new Variable("EC - Error code", GetEC(EC)));
                 }
                 viewAnalyse.Items.Add(new Variable("SM - System message", SM));
-                if (SM != string.Empty)
+                if (!string.IsNullOrEmpty(SM))
                 {
                     char SEP = ':';
                     string[] seps = SM.Split(SEP);
                     string AdC = seps[0];
                     string SCTS = seps[1];
                     viewAnalyse.Items.Add(new Variable(" SM AdC", AdC));
-                    viewAnalyse.Items.Add(new Variable(" SM SCTS", getTime(SCTS)));
+                    viewAnalyse.Items.Add(new Variable(" SM SCTS", GetTime(SCTS)));
                 }
             }
-        }
-
-        private void Analyse_Nothing()
-        {
-
         }
 
         private void AnalyseSession()
@@ -831,21 +821,21 @@ namespace Hummingbird.Extension.SMSC
             string OTON = pairs[5];
             string ONPI = pairs[6];
             string STYP = pairs[7];
-            string PWD = System.Text.ASCIIEncoding.ASCII.GetString(EMIProtocol.HexStringToByteArray(pairs[8]));
-            string NPWD = System.Text.ASCIIEncoding.ASCII.GetString(EMIProtocol.HexStringToByteArray(pairs[9]));
+            string PWD = System.Text.ASCIIEncoding.ASCII.GetString(EmiProtocol.HexStringToByteArray(pairs[8]));
+            string NPWD = System.Text.ASCIIEncoding.ASCII.GetString(EmiProtocol.HexStringToByteArray(pairs[9]));
             string VERS = pairs[10];
             string OPID = pairs[14];
 
-            viewAnalyse.Items.Add(new Variable("Direction", getValueFrom(dirs, DIR)));
-            viewAnalyse.Items.Add(new Variable("Operation", getValueFrom(opers, OPERATION)));
+            viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
+            viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPERATION)));
             viewAnalyse.Items.Add(new Variable("OAdC - TCP/IP or abbreviated address,", OAdC));
-            viewAnalyse.Items.Add(new Variable("OTON - Originator Type of Number", getValueFrom(otons, OTON)));
-            viewAnalyse.Items.Add(new Variable("ONPI - Originator Numbering Plan Id", getValueFrom(onpis, ONPI)));
-            viewAnalyse.Items.Add(new Variable("STYP - Subtype of operation", getValueFrom(styps, STYP)));
+            viewAnalyse.Items.Add(new Variable("OTON - Originator Type of Number", GetValueFrom(otons, OTON)));
+            viewAnalyse.Items.Add(new Variable("ONPI - Originator Numbering Plan Id", GetValueFrom(onpis, ONPI)));
+            viewAnalyse.Items.Add(new Variable("STYP - Subtype of operation", GetValueFrom(styps, STYP)));
             viewAnalyse.Items.Add(new Variable("PWD - Password", PWD));
             viewAnalyse.Items.Add(new Variable("NPWD - New Password", NPWD));
             viewAnalyse.Items.Add(new Variable("VERS - Version Number", VERS));
-            viewAnalyse.Items.Add(new Variable("OPID - Originator Protocol Identifier:", getValueFrom(opids, OPID)));
+            viewAnalyse.Items.Add(new Variable("OPID - Originator Protocol Identifier:", GetValueFrom(opids, OPID)));
         }
 
 
@@ -865,8 +855,7 @@ namespace Hummingbird.Extension.SMSC
                 int contentLength = int.Parse(length, System.Globalization.NumberStyles.HexNumber);
                 content = xser.Substring(position, contentLength * 2);
                 position += (contentLength * 2);
-                string value;
-                viewAnalyse.Items.Add(new Variable(" XSer Type " + count, getXserType(type, content, out value)));
+                viewAnalyse.Items.Add(new Variable(" XSer Type " + count, GetXserType(type, content, out string value)));
                 if (value == null)
                 {
                     if (type == "01")
@@ -889,7 +878,7 @@ namespace Hummingbird.Extension.SMSC
 
 
 
-        public static string getXserType(string XSER, string v, out string Value)
+        private static string GetXserType(string XSER, string v, out string Value)
         {
             switch (XSER)
             {
@@ -897,25 +886,25 @@ namespace Hummingbird.Extension.SMSC
                     Value = null;
                     return "01 - GSM UDH information";
                 case "02":
-                    Value = getValueFrom(DCS, v);
+                    Value = GetValueFrom(DCS, v);
                     return "02 - GSM DCS information";
                 case "03":
-                    Value = getValueFrom(MessageTypes, v);
+                    Value = GetValueFrom(MessageTypes, v);
                     return "03 - Message Type";
                 case "04":
                     Value = null;
                     return "04 - Message Reference";
                 case "05":
-                    Value = getValueFrom(PIS, v);
+                    Value = GetValueFrom(PIS, v);
                     return "05 - Privacy indicator";
                 case "06":
-                    Value = getValueFrom(UIS, v);
+                    Value = GetValueFrom(UIS, v);
                     return "06 - Urgency Indicator";
                 case "07":
-                    Value = getValueFrom(ARS, v);
+                    Value = GetValueFrom(ARS, v);
                     return "07 - Acknowledgement Request";
                 case "08":
-                    Value = getValueFrom(MUS, v);
+                    Value = GetValueFrom(MUS, v);
                     return "08 - Message Updating";
                 case "09":
                     Value = null;
@@ -930,7 +919,7 @@ namespace Hummingbird.Extension.SMSC
                     Value = null;
                     return "0C - Billing Identifier";
                 case "0D":
-                    Value = getValueFrom(SSIS, v);
+                    Value = GetValueFrom(SSIS, v);
                     return "0D - Single Shot indicator";
                 default:
                     Value = null;
@@ -943,7 +932,7 @@ namespace Hummingbird.Extension.SMSC
         private void AnalyseUDH(string v)
         {
             int max = 0;
-            viewAnalyse.Items.Add(new Variable("   UDH Type", getValueFrom(UDH, v.Substring(0, 2))));
+            viewAnalyse.Items.Add(new Variable("   UDH Type", GetValueFrom(UDH, v.Substring(0, 2))));
             switch (v.Substring(0, 2))
             {
                 case "00":
@@ -980,7 +969,7 @@ namespace Hummingbird.Extension.SMSC
             }
         }
 
-        public string getTime(string v)
+        private static string GetTime(string v)
         {
             try
             {
@@ -1005,22 +994,22 @@ namespace Hummingbird.Extension.SMSC
             }
         }
 
-        public string getDst(string Value)
+        private string GetDst(string Value)
         {
-            return getValueFrom(dsts, Value);
+            return GetValueFrom(dsts, Value);
         }
 
-        public string getRsn(string Value)
+        private string GetRsn(string Value)
         {
-            return getValueFrom(rsns, Value);
+            return GetValueFrom(rsns, Value);
         }
 
-        public string getEC(string Value)
+        private string GetEC(string Value)
         {
-            return getValueFrom(ecs, Value);
+            return GetValueFrom(ecs, Value);
         }
 
-        public static string getValueFrom(string[] array, string v)
+        private static string GetValueFrom(string[] array, string v)
         {
             if (!String.IsNullOrEmpty(v))
             {
@@ -1063,7 +1052,6 @@ namespace Hummingbird.Extension.SMSC
                     Analyse_ACKNACK();
                     break;
                 default:
-                    Analyse_Nothing();
                     break;
             }
             //ShowResult();
@@ -1082,7 +1070,7 @@ namespace Hummingbird.Extension.SMSC
         {
             //Message.Tag is the RAW trame message
             string tag = message.RequestText;
-            var obj = new EMIProtocol(tag, (EMIService.referredServer));
+            var obj = new EmiProtocol(tag, (EmiService.referredServer));
             ParseObject(obj);
         }
     }

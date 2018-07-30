@@ -67,12 +67,12 @@ namespace Hummingbird.Extension.SMSC
                     if (XSER.Contains("020108") || XSER.Contains("020109") || XSER.Contains("02010A") || XSER.Contains("02010B") || XSER.Contains("020118") || XSER.Contains("020119") || XSER.Contains("02011A") || XSER.Contains("02011B") || XSER.Contains("020128") || XSER.Contains("020129") || XSER.Contains("02012A") || XSER.Contains("02012B") || XSER.Contains("020138") || XSER.Contains("020139") || XSER.Contains("02013A") || XSER.Contains("02013B"))
                     {
                         //Unicode
-                        message = System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EMIProtocol.decode(hexmessage.ToCharArray()));
+                        message = System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(hexmessage.ToCharArray()));
                     }
                     else
                     {
                         //GSM8BIT / GSM7BIT
-                        message = EMIProtocol.GSM8HexToString(hexmessage);
+                        message = EmiProtocol.GSM8HexToString(hexmessage);
                     }
                     int shortcode;
                     if (op == "51")
@@ -83,7 +83,7 @@ namespace Hummingbird.Extension.SMSC
                         }
                         else
                         {
-                            from = EMIProtocol.GSM7HexToString(from.Substring(2)).Substring(0, int.Parse(from.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
+                            from = EmiProtocol.GSM7HexToString(from.Substring(2)).Substring(0, int.Parse(from.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
                             if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
                         }
                     }
@@ -95,7 +95,7 @@ namespace Hummingbird.Extension.SMSC
                         }
                         else
                         {
-                            to = EMIProtocol.GSM7HexToString(to.Substring(2)).Substring(0, int.Parse(to.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
+                            to = EmiProtocol.GSM7HexToString(to.Substring(2)).Substring(0, int.Parse(to.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
                             if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
                         }
                     }
@@ -136,18 +136,18 @@ namespace Hummingbird.Extension.SMSC
 
 
         /// <summary>
-        /// Gets or sets the parsed UCP / EMI message represented by a <see cref="EMIProtocol"/> object
+        /// Gets or sets the parsed UCP / EMI message represented by a <see cref="EmiProtocol"/> object
         /// </summary>
         /// <value>
         /// The emi protocol object.
         /// </value>
-        public EMIProtocol EMIProtocolObject
+        public EmiProtocol EMIProtocolObject
         {
             get
             {
                 if (_emiObject == null)
                 {
-                    return new EMIProtocol(rawmessage);
+                    return new EmiProtocol(rawmessage);
                 }
                 else
                 {
@@ -160,7 +160,7 @@ namespace Hummingbird.Extension.SMSC
             }
         }
 
-        private EMIProtocol _emiObject;
+        private EmiProtocol _emiObject;
 
         /// <summary>
         /// Gets or sets the translated EMI protocol to a humain readable message.

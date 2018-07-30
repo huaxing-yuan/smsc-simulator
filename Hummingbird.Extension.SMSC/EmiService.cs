@@ -14,7 +14,7 @@ namespace Hummingbird.Extension.SMSC
     /// <summary>
     /// Description of EMIService.
     /// </summary>
-    internal class EMIService : ISocketService
+    internal class EmiService : ISocketService
     {
         int totalConnections = 0;
         private static List<ISocketConnection> connections = new List<ISocketConnection>();
@@ -23,10 +23,10 @@ namespace Hummingbird.Extension.SMSC
         internal static SmsServer referredServer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EMIService"/> class.
+        /// Initializes a new instance of the <see cref="EmiService"/> class.
         /// </summary>
         /// <param name="server">The server.</param>
-        public EMIService(SmsServer server)
+        public EmiService(SmsServer server)
         {
             referredServer = server;
         }
@@ -36,9 +36,11 @@ namespace Hummingbird.Extension.SMSC
             if (e.Connection.Host.HostType == HostType.htServer)
             {
                 connections.Add(e.Connection);
-                MessageBuffers buffer = new MessageBuffers();
-                buffer.Connection = e.Connection;
-                buffer.Running = true;
+                MessageBuffers buffer = new MessageBuffers
+                {
+                    Connection = e.Connection,
+                    Running = true
+                };
                 Buffers.Add(buffer);
                 e.Connection.BeginReceive();
                 MessageQueue.Add(new Message()
@@ -49,14 +51,20 @@ namespace Hummingbird.Extension.SMSC
                 });
                 totalConnections++;
                 referredServer.SendRequestEnabled(true, null);
-                Thread t = new Thread(this.RunReceiver);
-                t.IsBackground = true;
+                Thread t = new Thread(RunReceiver)
+                {
+                    IsBackground = true
+                };
                 t.Start(buffer);
-                Thread t2 = new Thread(this.RunSender);
-                t2.IsBackground = true;
+                Thread t2 = new Thread(RunSender)
+                {
+                    IsBackground = true
+                };
                 t2.Start(buffer);
-                Thread t3 = new Thread(this.SendSR);
-                t3.IsBackground = true;
+                Thread t3 = new Thread(SendSR)
+                {
+                    IsBackground = true
+                };
                 t3.Start(buffer);
 
 
@@ -78,9 +86,6 @@ namespace Hummingbird.Extension.SMSC
                 {
                     if (e.Connection.Host.HostType == HostType.htServer)
                     {
-                        //EmiOperation eo = new EmiOperation(
-                        //e.Connection.BeginSend();
-                        //BuffertoWrite.Push(e.Buffer);
                         buffer.AddToBufferIn(e.Buffer);
                     }
                     break;
@@ -125,14 +130,14 @@ namespace Hummingbird.Extension.SMSC
             while (workingbuffer.Running)
             {
                 string msg = workingbuffer.ReadNextMessageIN();
-                if (msg != string.Empty)
+                if (!string.IsNullOrEmpty(msg))
                 {
 
                     //Response;
-                    EMIProtocol eo;
+                    EmiProtocol eo;
                     try
                     {
-                        eo = new EMIProtocol(msg, referredServer);
+                        eo = new EmiProtocol(msg, referredServer);
                         string operation = eo.OT;
                         string response = string.Empty;
                         string SR = string.Empty;
@@ -154,7 +159,7 @@ namespace Hummingbird.Extension.SMSC
 
                                 //CHECK IF THE MT IS PING OR ACK?
                                 string MSISDN = eo.AdC;
-                                if (MSISDN == string.Empty)
+                                if (string.IsNullOrEmpty(MSISDN))
                                 {
                                     MTType = EmiMessageType.PING;
                                     m2.Type = EmiMessageType.PING_ACK;
@@ -212,12 +217,14 @@ namespace Hummingbird.Extension.SMSC
 
                             //Add MT To Log;
 
-                            EmiMessage m = new EmiMessage();
-                            m.Type = MTType;
-                            m.Direction = MessageDirection.Incoming;
-                            m.CreateDate = new DateTimeOffset(DateTime.Now);
-                            m.RAWMessage = msg;
-                            m.EMIProtocolObject = eo;
+                            EmiMessage m = new EmiMessage
+                            {
+                                Type = MTType,
+                                Direction = MessageDirection.Incoming,
+                                CreateDate = new DateTimeOffset(DateTime.Now),
+                                RAWMessage = msg,
+                                EMIProtocolObject = eo
+                            };
 
                             AbstractMetadata metadata = null;
                             if (m.Type == EmiMessageType.MT)
@@ -252,7 +259,7 @@ namespace Hummingbird.Extension.SMSC
                                 m2.Direction = 0;
                                 m2.CreateDate = new DateTimeOffset(DateTime.Now);
                                 m2.RAWMessage = response;
-                                m2.EMIProtocolObject = new EMIProtocol(response);
+                                m2.EMIProtocolObject = new EmiProtocol(response);
                                 lock (workingbuffer.MessageToBeSent)
                                 {
                                     workingbuffer.MessageToBeSent.Enqueue(m2);
@@ -260,24 +267,19 @@ namespace Hummingbird.Extension.SMSC
                                 }
 
 
-                                /*lock(MainPage.Messages){
-                                    MainPage.Messages.Add(m2);
-                                }*/
 
 
-                                if (m2.Type == EmiMessageType.MT_ACK && SR != string.Empty)
+                                if (m2.Type == EmiMessageType.MT_ACK && !string.IsNullOrEmpty(SR))
                                 {
-                                    //AddToBufferOut(StringToByte(SR));
-
-
-
-                                    EmiMessage sr = new EmiMessage();
-                                    sr.Type = EmiMessageType.SR;
-                                    sr.Direction = 0;
-                                    sr.CreateDate = new DateTimeOffset(DateTime.Now).AddSeconds(referredServer.srDelay);
-                                    sr.RAWMessage = SR;
-                                    sr.ExpectedSendDate = new DateTimeOffset(DateTime.Now).AddSeconds(referredServer.srDelay);
-                                    sr.EMIProtocolObject = new EMIProtocol(SR);
+                                    EmiMessage sr = new EmiMessage
+                                    {
+                                        Type = EmiMessageType.SR,
+                                        Direction = 0,
+                                        CreateDate = new DateTimeOffset(DateTime.Now).AddSeconds(referredServer.srDelay),
+                                        RAWMessage = SR,
+                                        ExpectedSendDate = new DateTimeOffset(DateTime.Now).AddSeconds(referredServer.srDelay),
+                                        EMIProtocolObject = new EmiProtocol(SR)
+                                    };
 
                                     //Before we sent SR directly, like this ->
                                     //SendMOSRACK(sr);
@@ -285,9 +287,6 @@ namespace Hummingbird.Extension.SMSC
                                     //With this method, the SR can be sent 5 or 10 seconds later.
                                     workingbuffer.SRToBeSent.Enqueue(sr);
 
-                                    //MainPage.Messages.Add(sr);
-                                    //SRToBeSent.Push(SR);
-                                    //new Thread(new ThreadStart(SendSR)).Start();
                                 }
 
                             }
@@ -328,7 +327,7 @@ namespace Hummingbird.Extension.SMSC
             Buffers.Remove(workingbuffer);
         }
 
-        public void RunSender(object buffer)
+        internal static void RunSender(object buffer)
         {
 
             MessageBuffers workingbuffer = (MessageBuffers)buffer;
@@ -377,47 +376,9 @@ namespace Hummingbird.Extension.SMSC
                 }
             }
 
-            /*
-            MessageBuffers workingbuffer = (MessageBuffers)buffer;
-            while (workingbuffer.Running)
-            {
-                
-                //lock (workingbuffer.MessageToBeSent.SyncRoot)
-                //{
-                    int j = 0;
-                    while (workingbuffer.MessageToBeSent.Count > 0 && j<10)
-                    {
-                        Message message = (Message)(workingbuffer.MessageToBeSent.Dequeue());
-                        Toolkit.AddToMessageQueue.Add(message);
-                        workingbuffer.AddToBufferOut(MessageBuffers.StringToByte(message.RAWMessage));
-                        j++;
-                    }
-                //}
+                   }
 
-                int length = 1;
-                while (length > 0)
-                {
-                    byte[] data = workingbuffer.ReadNextMessageOut(out length);
-                    byte[] msg = new byte[length];
-                    for (int i = 0; i < length; i++)
-                    {
-                        msg[i] = data[i];
-                    }
-                    if (length > 0)
-                    {
-                        workingbuffer.Connection.BeginSend(msg);
-                    }
-                    else
-                    {
-                        //Thread.Sleep(5); //If there is no MO to send, sleep 5 milliseconds
-                    }
-                }
-                Thread.Sleep(5);
-            }
-             * */
-        }
-
-        public void Stop()
+        public static void Stop()
         {
             foreach (var buffer in Buffers)
             {
@@ -425,7 +386,7 @@ namespace Hummingbird.Extension.SMSC
             }
         }
 
-        public void SendSR(object buffer)
+        internal static void SendSR(object buffer)
         {
             MessageBuffers workingbuffer = (MessageBuffers)buffer;
             while (workingbuffer.Running)
@@ -481,7 +442,7 @@ namespace Hummingbird.Extension.SMSC
             }
         }
 
-        public void SendMOSRACK(EmiMessage mo, MessageBuffers buffer)
+        internal static void SendMOSRACK(EmiMessage mo, MessageBuffers buffer)
         {
             if (buffer != null)
             {

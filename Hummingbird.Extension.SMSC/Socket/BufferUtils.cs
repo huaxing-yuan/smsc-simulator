@@ -71,7 +71,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                 case DelimiterType.dtMessageTailExcludeOnReceive:
                 case DelimiterType.dtMessageTailIncludeOnReceive:
 
-                    if (connection.Delimiter != null && connection.Delimiter.Length >= 0)
+                    if (connection.Delimiter?.Length > 0)
                     {
 
                         //----- Need delimiter!

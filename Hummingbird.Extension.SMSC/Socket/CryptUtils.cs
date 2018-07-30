@@ -238,7 +238,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     }
                     else
                     {
-                        cs.Write(buffer, 0, buffer.Length);
+                        cs?.Write(buffer, 0, buffer.Length);
                     }
 
                     if (cs != null)

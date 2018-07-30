@@ -54,8 +54,6 @@ using System.Text;
 using System.ServiceModel.Channels;
 using System.Runtime.Serialization.Formatters.Binary;
 
-//using ALAZ.SystemEx.ThreadingEx;
-
 namespace ALAZ.SystemEx.NetEx.SocketsEx
 {
 
@@ -68,26 +66,14 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
         #region Fields
 
         private bool FActive;
-        private object FSyncActive;
-        
-        private HostType FHostType;
+        private readonly object FSyncActive;
         private long FConnectionId;
-
-        private DelimiterType FDelimiterType;
-        private CallbackThreadType FCallbackThreadType;
-
-        private int FMessageBufferSize;
-        private int FSocketBufferSize;
+        private readonly CallbackThreadType FCallbackThreadType;
 
         //----- Enumerates the connections and creators!
         private ReaderWriterLockSlim FSocketConnectionsSync;
         private Dictionary<long, BaseSocketConnection> FSocketConnections;
-        private BufferManager FBufferManager;
-
         private List<BaseSocketConnectionCreator> FSocketCreators;
-
-        //----- The System.Net.Sockets.Socket Service.
-        private ISocketService FSocketService;
 
         //----- Waits for objects removing!
         private ManualResetEvent FWaitCreatorsDisposing;
@@ -96,45 +82,39 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         //----- Check idle timer!
         private Timer FIdleTimer;
-        private int FIdleCheckInterval;
-        private int FIdleTimeOutValue;
-
-        //----- System.Net.Sockets.Socket delimiter and buffer size!
-        private byte[] FDelimiter;
-        private byte[] FDelimiterEncrypt;
 
         #endregion
 
         #region Constructor
 
-        public BaseSocketConnectionHost(HostType hostType, CallbackThreadType callbackThreadtype, ISocketService socketService, DelimiterType delimiterType, byte[] delimiter, int socketBufferSize, int messageBufferSize, int idleCheckInterval, int idleTimeOutValue)
+        protected BaseSocketConnectionHost(HostType hostType, CallbackThreadType callbackThreadtype, ISocketService socketService, DelimiterType delimiterType, byte[] delimiter, int socketBufferSize, int messageBufferSize, int idleCheckInterval, int idleTimeOutValue)
         {
 
-            FHostType = hostType;
+            HostType = hostType;
             FConnectionId = 1000;
 
             FSocketConnectionsSync = new ReaderWriterLockSlim();
 
             FSocketConnections = new Dictionary<long, BaseSocketConnection>();
             FSocketCreators = new List<BaseSocketConnectionCreator>();
-            FBufferManager = BufferManager.CreateBufferManager(0, messageBufferSize);
-            FSocketService = socketService;
+            BufferManager = BufferManager.CreateBufferManager(0, messageBufferSize);
+            SocketService = socketService;
 
             FWaitCreatorsDisposing = new ManualResetEvent(false);
             FWaitConnectionsDisposing = new ManualResetEvent(false);
             FWaitThreadsDisposing = new ManualResetEvent(false);
 
-            FIdleCheckInterval = idleCheckInterval;
-            FIdleTimeOutValue = idleTimeOutValue;
+            IdleCheckInterval = idleCheckInterval;
+            IdleTimeOutValue = idleTimeOutValue;
 
             FCallbackThreadType = callbackThreadtype;
-            FDelimiterType = delimiterType;
+            DelimiterType = delimiterType;
 
-            FDelimiter = delimiter;
-            FDelimiterEncrypt = new byte[] { 0xFE, 0xDC, 0xBA, 0x98, 0xBA, 0xDC, 0xFE };
+            Delimiter = delimiter;
+            DelimiterEncrypt = new byte[] { 0xFE, 0xDC, 0xBA, 0x98, 0xBA, 0xDC, 0xFE };
 
-            FMessageBufferSize = messageBufferSize;
-            FSocketBufferSize = socketBufferSize;
+            MessageBufferSize = messageBufferSize;
+            SocketBufferSize = socketBufferSize;
 
             FActive = false;
             FSyncActive = new Object();
@@ -188,16 +168,16 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                 FSocketCreators = null;
             }
 
-            if (FBufferManager != null)
+            if (BufferManager != null)
             {
-                FBufferManager.Clear();
-                FBufferManager = null;
+                BufferManager.Clear();
+                BufferManager = null;
             }
 
             FSocketConnectionsSync = null;
-            FSocketService = null;
-            FDelimiter = null;
-            FDelimiterEncrypt = null;
+            SocketService = null;
+            Delimiter = null;
+            DelimiterEncrypt = null;
 
             base.Free(canAccessFinalizable);
 
@@ -218,9 +198,6 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
             if (!Disposed)
             {
 
-                //ThreadPool.SetMinThreads(2, Environment.ProcessorCount * 2);
-                //ThreadPool.SetMaxThreads(48, Environment.ProcessorCount * 2);
-
                 int loopSleep = 0;
 
                 foreach (BaseSocketConnectionCreator creator in FSocketCreators)
@@ -229,14 +206,14 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     ThreadEx.LoopSleep(ref loopSleep);
                 }
 
-                if ((FIdleCheckInterval > 0) && (FIdleTimeOutValue > 0))
+                if ((IdleCheckInterval > 0) && (IdleTimeOutValue > 0))
                 {
                     FIdleTimer = new Timer(new TimerCallback(CheckSocketConnections));
                 }
 
                 if (FIdleTimer != null)
                 {
-                    FIdleTimer.Change(FIdleCheckInterval, FIdleCheckInterval);
+                    FIdleTimer.Change(IdleCheckInterval, IdleCheckInterval);
                 }
 
                 Active = true;
@@ -254,7 +231,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
         /// </summary>
         public virtual void Stop()
         {
-            
+
             if (!Disposed)
             {
                 Active = false;
@@ -330,7 +307,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                 {
 
                     FWaitConnectionsDisposing.Reset();
-                    
+
                     int loopSleep = 0;
 
                     foreach (BaseSocketConnection connection in connections)
@@ -370,10 +347,10 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                         switch (connection.EventProcessing)
                         {
-                            
+
                             case EventProcessing.epUser:
 
-                                FSocketService.OnConnected(new ConnectionEventArgs(connection));
+                                SocketService.OnConnected(new ConnectionEventArgs(connection));
                                 break;
 
                             case EventProcessing.epEncrypt:
@@ -390,8 +367,8 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                     }
                     finally
-                    { 
-                    //
+                    {
+                        //
                     }
 
                 }
@@ -409,7 +386,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
             if (!Disposed)
             {
-                
+
                 if (connection.Active)
                 {
 
@@ -421,7 +398,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                             case EventProcessing.epUser:
 
-                                FSocketService.OnSent(new MessageEventArgs(connection, null, sentByServer));
+                                SocketService.OnSent(new MessageEventArgs(connection, null, sentByServer));
                                 break;
 
                             case EventProcessing.epEncrypt:
@@ -469,7 +446,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                             case EventProcessing.epUser:
 
-                                FSocketService.OnReceived(new MessageEventArgs(connection, buffer, false));
+                                SocketService.OnReceived(new MessageEventArgs(connection, buffer, false));
                                 break;
 
                             case EventProcessing.epEncrypt:
@@ -502,13 +479,13 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         private void FireOnDisconnected(BaseSocketConnection connection)
         {
-            
+
             if (!Disposed)
             {
 
                 try
                 {
-                    FSocketService.OnDisconnected(new ConnectionEventArgs(connection));
+                    SocketService.OnDisconnected(new ConnectionEventArgs(connection));
                 }
                 finally
                 {
@@ -530,7 +507,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                 if (connection == null)
                 {
-                    FSocketService.OnException(new ExceptionEventArgs(connection, ex));
+                    SocketService.OnException(new ExceptionEventArgs(connection, ex));
                 }
                 else
                 {
@@ -540,7 +517,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                         try
                         {
-                            FSocketService.OnException(new ExceptionEventArgs(connection, ex));
+                            SocketService.OnException(new ExceptionEventArgs(connection, ex));
                         }
                         finally
                         {
@@ -577,7 +554,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     if (connection.Active)
                     {
 
-                        if ( (connection.EventProcessing == EventProcessing.epUser) && (buffer.Length > FMessageBufferSize) )
+                        if ((connection.EventProcessing == EventProcessing.epUser) && (buffer.Length > MessageBufferSize))
                         {
                             throw new MessageLengthException("Message length is greater than Host maximum message length.");
                         }
@@ -656,9 +633,9 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     FireOnException(connection, ex);
                 }
 
-                if (sendBuffer != null)
+                if (sendBuffer != null && sendBuffer.Length > 0)
                 {
-                    FBufferManager.ReturnBuffer(sendBuffer);
+                    BufferManager.ReturnBuffer(sendBuffer);
                 }
 
             }
@@ -674,14 +651,14 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
             switch (FCallbackThreadType)
             {
-             
+
                 case CallbackThreadType.ctWorkerThread:
-                    
+
                     ThreadPool.QueueUserWorkItem(new WaitCallback(BeginSendCallbackSSLP), ar);
                     break;
 
                 case CallbackThreadType.ctIOThread:
-                    
+
                     BeginSendCallbackSSLP(ar);
                     break;
 
@@ -718,7 +695,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                         connection.Stream.EndWrite(ar);
                         connection.SetConnectionData(0, connection.WriteOV.Count);
 
-                        FBufferManager.ReturnBuffer(connection.WriteOV.Buffer);
+                        BufferManager.ReturnBuffer(connection.WriteOV.Buffer);
 
                         FireOnSent(connection, sentByServer);
 
@@ -771,12 +748,12 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
             {
 
                 case CallbackThreadType.ctWorkerThread:
-        
+
                     ThreadPool.QueueUserWorkItem(new WaitCallback(BeginSendCallbackAsyncP), e);
                     break;
-                
+
                 case CallbackThreadType.ctIOThread:
-                    
+
                     BeginSendCallbackAsyncP(e);
                     break;
 
@@ -789,8 +766,8 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
             if (!Disposed)
             {
-
-                SocketAsyncEventArgs e = null;
+                SocketAsyncEventArgs e = (SocketAsyncEventArgs)state;
+                if (e == null) return;
                 WriteData writeData = null;
                 BaseSocketConnection connection = null;
 
@@ -799,18 +776,16 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                 try
                 {
-
-                    e = (SocketAsyncEventArgs)state;
                     writeData = (WriteData)e.UserToken;
-
                     connection = writeData.Connection;
+                    if (connection == null) return;
                     sentByServer = writeData.SentByServer;
 
                     writeData.Connection = null;
 
                     if (connection.Active)
                     {
-                        
+
                         if (e.SocketError == SocketError.Success)
                         {
 
@@ -833,7 +808,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                             else
                             {
 
-                                FBufferManager.ReturnBuffer(e.Buffer);
+                                BufferManager.ReturnBuffer(e.Buffer);
                                 e.SetBuffer(null, 0, 0);
 
                                 FireOnSent(connection, sentByServer);
@@ -962,11 +937,11 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                                 //----- if the connection is not receiving, start the receive!
                                 if (connection.EventProcessing == EventProcessing.epUser)
                                 {
-                                    readMessage = FBufferManager.TakeBuffer(FMessageBufferSize);
+                                    readMessage = BufferManager.TakeBuffer(MessageBufferSize);
                                 }
                                 else
                                 {
-                                    readMessage = FBufferManager.TakeBuffer(2048);
+                                    readMessage = BufferManager.TakeBuffer(2048);
                                 }
 
                                 connection.ReadOV.SetBuffer(readMessage, 0, readMessage.Length);
@@ -1020,9 +995,9 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     FireOnException(connection, ex);
                 }
 
-                if (readMessage != null)
+                if (readMessage?.Length > 0)
                 {
-                    FBufferManager.ReturnBuffer(readMessage);
+                    BufferManager.ReturnBuffer(readMessage);
                 }
 
             }
@@ -1039,7 +1014,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
             switch (FCallbackThreadType)
             {
                 case CallbackThreadType.ctWorkerThread:
-                    
+
                     ThreadPool.QueueUserWorkItem(new WaitCallback(BeginReadCallbackSSLP), ar);
                     break;
 
@@ -1073,7 +1048,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                         readBytes = connection.Stream.EndRead(ar);
                         connection.SetConnectionData(readBytes, 0);
-                        
+
                         if (readBytes > 0)
                         {
                             ReadFromConnection(connection, readBytes);
@@ -1128,7 +1103,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                 {
 
                     e = (SocketAsyncEventArgs)state;
-                    connection = (BaseSocketConnection) e.UserToken;
+                    connection = (BaseSocketConnection)e.UserToken;
 
                     if (connection.Active)
                     {
@@ -1149,7 +1124,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                             }
 
                         }
-                        
+
                         else
                         {
 
@@ -1204,7 +1179,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
         private void ReadFromConnection(BaseSocketConnection connection, int readBytes)
         {
 
-            
+
             bool onePacketFound = false;
             int remainingBytes = 0;
             SocketAsyncEventArgs e = connection.ReadOV;
@@ -1242,7 +1217,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                 else
                 {
 
-                    byte[] readMessage = connection.BaseHost.BufferManager.TakeBuffer(FMessageBufferSize);
+                    byte[] readMessage = connection.BaseHost.BufferManager.TakeBuffer(MessageBufferSize);
                     Buffer.BlockCopy(e.Buffer, e.Offset, readMessage, 0, remainingBytes);
 
                     connection.BaseHost.BufferManager.ReturnBuffer(e.Buffer);
@@ -1286,7 +1261,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
             byte[] rawBuffer = null;
             rawBuffer = BufferUtils.GetRawBuffer(connection, e.Buffer, readBytes);
-            
+
             FireOnReceived(connection, rawBuffer);
             return 0;
 
@@ -1303,7 +1278,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
             byte[] delimiter = connection.Delimiter;
             int delimiterSize = delimiter.Length;
-            
+
             bool readPacket = false;
             bool packetFound = false;
 
@@ -1375,7 +1350,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     onePacketFound = true;
 
                     rawBuffer = BufferUtils.GetRawBufferWithTail(connection, e, offsetToFind, delimiterSize);
-                    rawBuffer = CryptUtils.DecryptData(connection, rawBuffer, FMessageBufferSize);
+                    rawBuffer = CryptUtils.DecryptData(connection, rawBuffer, MessageBufferSize);
 
                     offsetToFind += 1;
                     remainingBytes -= (offsetToFind - e.Offset);
@@ -1470,7 +1445,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                     if (connection.Active)
                     {
-                        
+
                         lock (connection.SyncActive)
                         {
                             CloseConnection(connection);
@@ -1501,7 +1476,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
         }
 
         #endregion
-        
+
         #endregion
 
         #region Abstract Methods
@@ -1530,7 +1505,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         public ISocketConnection GetConnectionById(long connectionId)
         {
-            
+
             ISocketConnection result = null;
 
             if (!Disposed)
@@ -1561,8 +1536,8 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
             {
 
                 switch (connection.EventProcessing)
-	            {
-		            
+                {
+
                     case EventProcessing.epNone:
 
                         if (InitializeConnectionProxy(connection))
@@ -1599,15 +1574,15 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                         }
 
                         break;
-            
+
                     case EventProcessing.epEncrypt:
 
                         connection.EventProcessing = EventProcessing.epUser;
                         FireOnConnected(connection);
 
                         break;
-    
-	            }
+
+                }
 
             }
 
@@ -1713,36 +1688,36 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
         internal void RemoveSocketConnection(BaseSocketConnection socketConnection)
         {
 
-          if (!Disposed)
-          {
+            if (!Disposed)
+            {
 
-              if (socketConnection != null)
-              {
+                if (socketConnection != null)
+                {
 
 
-                  FSocketConnectionsSync.EnterWriteLock();
+                    FSocketConnectionsSync.EnterWriteLock();
 
-                  try
-                  {
+                    try
+                    {
 
-                      FSocketConnections.Remove(socketConnection.ConnectionId);
+                        FSocketConnections.Remove(socketConnection.ConnectionId);
 
-                  }
-                  finally
-                  {
+                    }
+                    finally
+                    {
 
-                      if (FSocketConnections.Count <= 0)
-                      {
-                          FWaitConnectionsDisposing.Set();
-                      }
+                        if (FSocketConnections.Count <= 0)
+                        {
+                            FWaitConnectionsDisposing.Set();
+                        }
 
-                      FSocketConnectionsSync.ExitWriteLock();
+                        FSocketConnectionsSync.ExitWriteLock();
 
-                  }
+                    }
 
-              }
+                }
 
-        }
+            }
 
         }
 
@@ -1764,7 +1739,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                         if (connection.WriteOV.Buffer != null)
                         {
-                            FBufferManager.ReturnBuffer(connection.WriteOV.Buffer);
+                            BufferManager.ReturnBuffer(connection.WriteOV.Buffer);
                         }
 
                     }
@@ -1774,11 +1749,11 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                         if (connection.ReadOV.Buffer != null)
                         {
-                            FBufferManager.ReturnBuffer(connection.ReadOV.Buffer);
+                            BufferManager.ReturnBuffer(connection.ReadOV.Buffer);
                         }
 
                     }
-                    
+
                     connection.Dispose();
 
                 }
@@ -1813,7 +1788,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                             if (message != null)
                             {
-                                FBufferManager.ReturnBuffer(message.Buffer);
+                                BufferManager.ReturnBuffer(message.Buffer);
                             }
 
                         }
@@ -1866,7 +1841,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
             if (!Disposed)
             {
 
-                
+
                 FSocketConnectionsSync.EnterReadLock();
 
                 try
@@ -1907,7 +1882,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                     {
 
                         int loopSleep = 0;
-                        
+
                         foreach (BaseSocketConnection cnn in items)
                         {
 
@@ -1915,7 +1890,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                             {
                                 break;
                             }
-                            
+
                             try
                             {
 
@@ -1923,7 +1898,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                                 {
 
                                     //----- Check the idle timeout!
-                                    if (new DateTimeOffset(DateTime.Now) > (cnn.LastAction.AddMilliseconds(FIdleTimeOutValue)))
+                                    if (new DateTimeOffset(DateTime.Now) > (cnn.LastAction.AddMilliseconds(IdleTimeOutValue)))
                                     {
                                         cnn.BeginDisconnect();
                                     }
@@ -1945,11 +1920,11 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                 }
                 finally
                 {
-                    
+
                     if (!Disposed)
                     {
                         //----- Restart the timer event!
-                        FIdleTimer.Change(FIdleCheckInterval, FIdleCheckInterval);
+                        FIdleTimer.Change(IdleCheckInterval, IdleCheckInterval);
                     }
 
                 }
@@ -1986,13 +1961,13 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         protected void RemoveCreator(BaseSocketConnectionCreator creator)
         {
-            
+
             if (!Disposed)
             {
-                
+
                 lock (FSocketCreators)
                 {
-                    
+
                     FSocketCreators.Remove(creator);
 
                     if (FSocketCreators.Count <= 0)
@@ -2191,8 +2166,8 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                             case EventProcessing.epProxy:
 
-                                ProxyInfo proxyInfo = ((SocketConnector) connection.BaseCreator).ProxyInfo;
-                                IPEndPoint endPoint = ((SocketConnector) connection.BaseCreator).RemoteEndPoint;
+                                ProxyInfo proxyInfo = ((SocketConnector)connection.BaseCreator).ProxyInfo;
+                                IPEndPoint endPoint = ((SocketConnector)connection.BaseCreator).RemoteEndPoint;
                                 byte[] proxyBuffer = ProxyUtils.GetProxyRequestData(proxyInfo, endPoint);
 
                                 connection.BeginSend(proxyBuffer);
@@ -2201,12 +2176,12 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                         }
 
-                        
+
 
                     }
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     FireOnException(connection, ex);
                 }
@@ -2305,7 +2280,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
                                     try
                                     {
-                                        am = (AuthMessage) b.Deserialize(m);
+                                        am = (AuthMessage)b.Deserialize(m);
                                     }
                                     catch
                                     {
@@ -2544,67 +2519,27 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         #region Properties
 
-        internal BufferManager BufferManager
-        {
-            get { return FBufferManager; }
-        }
+        internal BufferManager BufferManager { get; private set; }
 
-        public int SocketBufferSize
-        {
-            get { return FSocketBufferSize; }
-            set { FSocketBufferSize = value; }  
-        }
+        public int SocketBufferSize { get; set; }
 
-        public int MessageBufferSize
-        {
-            get { return FMessageBufferSize; }
-            set { FMessageBufferSize = value; }  
-        }
+        public int MessageBufferSize { get; set; }
 
-        public byte[] DelimiterEncrypt
-        {
-            get { return FDelimiterEncrypt; }
-            set { FDelimiterEncrypt = value; }
-        }
+        public byte[] DelimiterEncrypt { get; set; }
 
-        public byte[] Delimiter
-        {
-            get { return FDelimiter; }
-            set { FDelimiter = value; }
-        }
+        public byte[] Delimiter { get; set; }
 
-        public DelimiterType DelimiterType
-        {
-            get { return FDelimiterType; }
-            set { FDelimiterType = value; }
-        }
+        public DelimiterType DelimiterType { get; set; }
 
-        public ISocketService SocketService
-        {
-            get { return FSocketService; }
-        }
+        public ISocketService SocketService { get; private set; }
 
-        protected Timer CheckTimeOutTimer
-        {
-            get { return CheckTimeOutTimer; }
-        }
+        protected Timer CheckTimeOutTimer { get; }
 
-        public int IdleCheckInterval
-        {
-            get { return FIdleCheckInterval; }
-            set { FIdleCheckInterval = value; }
-        }
+        public int IdleCheckInterval { get; set; }
 
-        public int IdleTimeOutValue
-        {
-            get { return FIdleTimeOutValue; }
-            set { FIdleTimeOutValue = value; } 
-        }
+        public int IdleTimeOutValue { get; set; }
 
-        public HostType HostType
-        {
-            get { return FHostType; }
-        }
+        public HostType HostType { get; }
 
         public bool Active
         {

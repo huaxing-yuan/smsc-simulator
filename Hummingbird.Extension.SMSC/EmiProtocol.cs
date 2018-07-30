@@ -13,7 +13,7 @@ namespace Hummingbird.Extension.SMSC
     /// UCP 52 - Delivery Short Message Operation
     /// UCP 53 - Delivery Notification Operation
     /// </summary>
-    public class EMIProtocol
+    public class EmiProtocol
     {
         private static char STX = '\x02';
         private static char ETX = '\x03';
@@ -112,11 +112,11 @@ namespace Hummingbird.Extension.SMSC
         string OPID { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EMIProtocol"/> class.
+        /// Initializes a new instance of the <see cref="EmiProtocol"/> class.
         /// </summary>
         /// <param name="trame">The original RAW trame of the current message, starts with STX charactor and ends with ETX charactor</param>
         /// <param name="server">The server.</param>
-        public EMIProtocol(string trame, SmsServer server)
+        public EmiProtocol(string trame, SmsServer server)
         {
             if (referedServer == null)
             {
@@ -186,7 +186,7 @@ namespace Hummingbird.Extension.SMSC
         /// used for trace trame only
         /// </summary>
         /// <param name="trame">Original raw trame of EMI-UCP representing a SMS</param>
-        public EMIProtocol(string trame)
+        public EmiProtocol(string trame)
         {
             OriginalTrame = trame;
             try
@@ -346,7 +346,7 @@ namespace Hummingbird.Extension.SMSC
             string Msg = string.Empty;
             string Xser = string.Empty;
             string Mt = string.Empty;
-            if ((int)MT != 0) Mt = ((int)MT).ToString();
+            if (MT != 0) Mt = ((int)MT).ToString();
             string NB = string.Empty;
             int iNB = 0;
             if (format == MessageFormat.Unicode)
@@ -370,9 +370,8 @@ namespace Hummingbird.Extension.SMSC
                 // Par defaut on encode en GSM
                 //According to Spec EMI. if we want to send SMS coded to 8-bit, the MT must set to 4.
                 Msg = TextToGSM8HexString(text);
-                Xser = ""; // En GSM non compresse
                 Mt = "4";
-                Xser = "0201F4";
+                Xser = "0201F4"; // En GSM non compresse
                 NB = string.Empty;
             }
             string mo = STX + localTRN.ToString("00") + "/LLLLL/O/52/" + AdC + "/" + OAdC + "/////////////" + SCTS.ToString(SCTSFormat) + "////" + Mt + "/" + NB + "/" + Msg + "//////////" + Xser + "///SS" + ETX;
@@ -384,7 +383,7 @@ namespace Hummingbird.Extension.SMSC
 
         internal static byte[] HexStringToByteArray(string hexValue)
         {
-            return decode(hexValue.ToCharArray());
+            return Decode(hexValue.ToCharArray());
         }
 
         internal static string Encode(string text, MessageFormat format)
@@ -415,9 +414,9 @@ namespace Hummingbird.Extension.SMSC
                 }
 
                 //find char in standard table;
-                for (int i = 0; i < MMMtcBufGSMToLatin.Length; i++)
+                for (int i = 0; i < BufGSMToLatin.Length; i++)
                 {
-                    if (c == MMMtcBufGSMToLatin[i])
+                    if (c == BufGSMToLatin[i])
                     {
                         result.Append(i.ToString("X2"));
                         foundInTable = true;
@@ -427,9 +426,9 @@ namespace Hummingbird.Extension.SMSC
 
 
                 //find char in extended table;
-                for (int i = 0; i < MMMtcBufExtGSMToLatin.Length; i++)
+                for (int i = 0; i < BufGSMExtendedToLatin.Length; i++)
                 {
-                    if (c == MMMtcBufExtGSMToLatin[i])
+                    if (c == BufGSMExtendedToLatin[i])
                     {
                         result.Append("1B" + i.ToString("X2"));
                         foundInTable = true;
@@ -445,7 +444,7 @@ namespace Hummingbird.Extension.SMSC
 
         internal static string TextToUnicodeHexString(string text)
         {
-            string retour = string.Empty;
+            StringBuilder returnValue = new StringBuilder();
             byte[] titi = null;
 
             for (int i = 0; i < text.Length; i++)
@@ -456,11 +455,10 @@ namespace Hummingbird.Extension.SMSC
                 tmpByte = titi[0];
                 titi[0] = titi[1];
                 titi[1] = tmpByte;
-                retour = retour + ByteToHexString(titi);
+                returnValue.Append(ByteToHexString(titi));
             }
 
-            retour = retour.ToUpper();
-            return (retour);
+            return (returnValue.ToString().ToUpper());
         }
 
         internal static string TextToGsm7HexString(string text)
@@ -470,9 +468,9 @@ namespace Hummingbird.Extension.SMSC
 
         internal static string GSM8HexToString(string gsmStr)
         {
-            string retour = string.Empty;
+            StringBuilder returnValue = new StringBuilder();
 
-            byte[] tableauDeBytes = decode(gsmStr.ToCharArray());
+            byte[] tableauDeBytes = Decode(gsmStr.ToCharArray());
             int iMax = tableauDeBytes.Length;
             char caractere;
 
@@ -483,24 +481,24 @@ namespace Hummingbird.Extension.SMSC
                     if (tableauDeBytes[i] == (byte)0x1B)
                     {
                         i++;
-                        caractere = MMMtcBufExtGSMToLatin[tableauDeBytes[i]];
+                        caractere = BufGSMExtendedToLatin[tableauDeBytes[i]];
                         if (caractere == '.')
                         {
-                            caractere = MMMtcBufGSMToLatin[tableauDeBytes[i]];
+                            caractere = BufGSMToLatin[tableauDeBytes[i]];
                         }
                     }
                     else
-                        caractere = MMMtcBufGSMToLatin[tableauDeBytes[i]];
+                        caractere = BufGSMToLatin[tableauDeBytes[i]];
 
-                    retour = retour + caractere;
+                    returnValue.Append(caractere);
                 }
                 catch
                 {
-                    retour = retour + "?";
+                    returnValue.Append("?");
                 }
             }
 
-            return retour;
+            return returnValue.ToString();
         }
 
         internal static string GSM7HexToString(string s)
@@ -554,9 +552,9 @@ namespace Hummingbird.Extension.SMSC
          * @param hexChars an array of hex characters.
          * @return the decode hex chars as bytes.
          */
-        internal static byte[] decode(char[] hexChars)
+        internal static byte[] Decode(char[] hexChars)
         {
-            return decode(hexChars, 0, hexChars.Length);
+            return Decode(hexChars, 0, hexChars.Length);
         }
 
         /**
@@ -567,7 +565,7 @@ namespace Hummingbird.Extension.SMSC
          * @param length the number of characters to decode.
          * @return the decode hex chars as bytes.
          */
-        internal static byte[] decode(char[] hexChars, int startIndex, int length)
+        internal static byte[] Decode(char[] hexChars, int startIndex, int length)
         {
             if ((length & 1) != 0)
                 throw new ArgumentException("Length must be even");
@@ -575,7 +573,7 @@ namespace Hummingbird.Extension.SMSC
             byte[] result = new byte[length / 2];
             for (int j = 0; j < result.Length; j++)
             {
-                result[j] = (byte)(hexCharToNibble(hexChars[startIndex++]) * 16 + hexCharToNibble(hexChars[startIndex++]));
+                result[j] = (byte)(HexCharToNibble(hexChars[startIndex++]) * 16 + HexCharToNibble(hexChars[startIndex++]));
             }
             return result;
         }
@@ -583,7 +581,7 @@ namespace Hummingbird.Extension.SMSC
         /**
          * Internal method to turn a hex char into a nibble.
          */
-        private static int hexCharToNibble(char ch)
+        private static int HexCharToNibble(char ch)
         {
             if ((ch >= '0') && (ch <= '9'))
                 return ch - '0';
@@ -615,51 +613,46 @@ namespace Hummingbird.Extension.SMSC
             return septet;
         }
 
-        private static string SWAP(string str)
+        private static string Swap(string str)
         {
             char[] org = str.ToCharArray();
             char[] swap = new char[org.Length];
-            string uy = string.Empty;
-            int pppp = 0;
+            StringBuilder uy = new StringBuilder();
+            int p = 0;
             for (int sw = (org.Length - 1); sw >= 0; sw--)
             {
-                swap[pppp] = org[sw];
-                uy += swap[pppp].ToString();
-                pppp++;
+                swap[p] = org[sw];
+                uy.Append(swap[p].ToString());
+                p++;
 
             }
-            return uy;
+            return uy.ToString();
         }
 
         internal static string SeptetToOctet(List<string> septet)
         {
             List<string> octet = new List<string>();
-            string hexa;
+            
             #region Converting from septet to octet
             //-------------
             int len = 1;
             int j = 0;
-            //-----------
-            int septetcount = septet.Count;
-            //MessageBox.Show(septetcount.ToString());
-            //---------------
             while (j < septet.Count - 1)
             {
 
                 string tmp = septet[j]; // storing jth value
                 string tmp1 = septet[j + 1]; //storing j+1 th value
                 //-------------- Swapping----------
-                string mid = SWAP(tmp1);
+                string mid = Swap(tmp1);
 
                 //---------------------
                 tmp1 = mid;
                 tmp1 = tmp1.Substring(0, len);
                 //-----------reverse swapping
-                string add = SWAP(tmp1);
+                string add = Swap(tmp1);
                 //-------------------
-                tmp = add + tmp;// +"-";
+                tmp = add + tmp;
                 tmp = tmp.Substring(0, 8);
-                //txtoctet.Text += tmp + " || ";
                 octet.Add(tmp);
                 len++;
                 if (len == 8)
@@ -669,19 +662,16 @@ namespace Hummingbird.Extension.SMSC
                 }
                 j = j + 1;
 
-                //}
-
 
             }
             #endregion
 
-            hexa = string.Empty;
+            StringBuilder hexa = new StringBuilder();
 
             #region Converting from octet to hex
             for (int x = 0; x < octet.Count; x++)
             {
                 string oct = octet[x];
-                //MessageBox.Show(oct.Length.ToString());
                 string Fhalf = oct.Substring(0, 4);
                 string Shalf = oct.Substring(4, 4).ToString();
                 string hex1 = string.Empty;
@@ -730,7 +720,7 @@ namespace Hummingbird.Extension.SMSC
                 }
 
 
-                hexa += hex1 + hex2;
+                hexa.Append(hex1 + hex2);
 
             }
             #endregion
@@ -738,7 +728,7 @@ namespace Hummingbird.Extension.SMSC
 
             //------------------
 
-            return hexa;
+            return hexa.ToString();
         }
 
         /// <summary>
@@ -775,12 +765,12 @@ namespace Hummingbird.Extension.SMSC
                 if (XSER.Contains("020108") || XSER.Contains("020109") || XSER.Contains("02010A") || XSER.Contains("02010B") || XSER.Contains("020118") || XSER.Contains("020119") || XSER.Contains("02011A") || XSER.Contains("02011B") || XSER.Contains("020128") || XSER.Contains("020129") || XSER.Contains("02012A") || XSER.Contains("02012B") || XSER.Contains("020138") || XSER.Contains("020139") || XSER.Contains("02013A") || XSER.Contains("02013B"))
                 {
                     //Unicode
-                    message = System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EMIProtocol.decode(hexmessage.ToCharArray()));
+                    message = System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(hexmessage.ToCharArray()));
                 }
                 else
                 {
                     //GSM8BIT / GSM7BIT
-                    message = EMIProtocol.GSM8HexToString(hexmessage);
+                    message = EmiProtocol.GSM8HexToString(hexmessage);
                 }
                 int shortcode;
                 if (op == "51")
@@ -791,7 +781,7 @@ namespace Hummingbird.Extension.SMSC
                     }
                     else
                     {
-                        from = EMIProtocol.GSM7HexToString(from.Substring(2)).Substring(0, int.Parse(from.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
+                        from = EmiProtocol.GSM7HexToString(from.Substring(2)).Substring(0, int.Parse(from.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
                         if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
                     }
                 }
@@ -803,7 +793,7 @@ namespace Hummingbird.Extension.SMSC
                     }
                     else
                     {
-                        to = EMIProtocol.GSM7HexToString(to.Substring(2)).Substring(0, int.Parse(to.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
+                        to = EmiProtocol.GSM7HexToString(to.Substring(2)).Substring(0, int.Parse(to.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
                         if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
                     }
                 }
@@ -845,7 +835,7 @@ namespace Hummingbird.Extension.SMSC
 
         #region Charactor Tables
         //static members
-        static char[] isoToUnicode =
+        static readonly char[] isoToUnicode =
         {
             '\u0000','\u0001','\u0002','\u0003','\u0004','\u0005','\u0006','\u0007',
             '\u0008','\u0009','\u000A','\u000B','\u000C','\u000D','\u000E','\u000F',
@@ -881,7 +871,7 @@ namespace Hummingbird.Extension.SMSC
             '\u0171','\u00F9','\u00FA','\u00FB','\u00FC','\u0119','\u021B','\u00FF'
         };
 
-        static char[] GSM7BitToUnicode =
+        static readonly char[] GSM7BitToUnicode =
         {
             '\u0040','\u00A3','\u0024','\u00A5','\u00E8','\u00E9','\u00F9','\u00Ec',  //00
 			'\u00F2','\u00E7','\u000A','\u00D8','\u00F8','\u000D','\u00C5','\u00E5',  //08
@@ -917,9 +907,9 @@ namespace Hummingbird.Extension.SMSC
 			'\u0171','\u00F9','\u00FA','\u00FB','\u00FC','\u0119','\u021B','\u00FF'   //F8
 		};
 
-        static char[] hexChar = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+        static readonly char[] hexChar = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-        static char[] MMMtcBufLatinToGSM =
+        static readonly char[] BufLatinToGSM =
         {
             '.','.','.','.','.','.','.','.','.','.','\n','.','.','\r','.','.',
             '.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.',
@@ -939,7 +929,7 @@ namespace Hummingbird.Extension.SMSC
             'o','\x7D','\x08','o','o','o','\x7C','.','\x0C','\x06','u','u','\x7E','y','.','y'
         };
 
-        static char[] MMMtcBufLatinToExtGSM =
+        static readonly char[] BufLatinToGSMExtented =
         {
             '.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.',
             '.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.',
@@ -959,7 +949,7 @@ namespace Hummingbird.Extension.SMSC
             '.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.'
         };
 
-        static char[] MMMtcBufGSMToLatin =
+        static readonly char[] BufGSMToLatin =
         {
             '@','£','$','¥','è','é','ù','ì','ò','Ç','\n','Ø','ø','\r','Å','å',
             '.','_','.','.','.','.','.','.','Θ','.','.','.','Æ','æ','ß','É',
@@ -971,7 +961,7 @@ namespace Hummingbird.Extension.SMSC
             'p','q','r','s','t','u','v','w','x','y','z','ä','ö','ñ','ü','à'
         };
 
-        static char[] MMMtcBufExtGSMToLatin =
+        static readonly char[] BufGSMExtendedToLatin =
         {
             '.','.','.','.','.','.','.','.','.','.','\x0c','.','.','.','.','.',
             '.','.','.','.','^','.','.','.','.','.','.','.','.','.','.','.',

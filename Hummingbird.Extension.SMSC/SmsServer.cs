@@ -64,7 +64,7 @@ namespace Hummingbird.Extension.SMSC
         internal RequestMetadata SRMetadata;
 
         SocketServer sersock = null;
-        internal static EMIService emiservice = null;
+        internal static EmiService Emiservice { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmsServer"/> class.
@@ -92,16 +92,12 @@ namespace Hummingbird.Extension.SMSC
 
 
 
-            try
-            {
-                BitmapImage src = new BitmapImage();
-                src.BeginInit();
-                src.UriSource = new Uri("pack://application:,,,/Hummingbird.Extension.SMSC;component/smsc.png", UriKind.Absolute);
-                src.CacheOption = BitmapCacheOption.OnLoad;
-                src.EndInit();
-                this.ImageSource = src;
-            }
-            catch { }
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri("pack://application:,,,/Hummingbird.Extension.SMSC;component/smsc.png", UriKind.Absolute);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+            this.ImageSource = src;
             MOMetadata = new RequestMetadata()
             {
                 Id = new Guid("2bee75e3-527d-48ec-9bad-c7b258259032"),
@@ -122,16 +118,17 @@ namespace Hummingbird.Extension.SMSC
                 ServiceName = "Send SMS Status Report",
             };
 
-            this.SupportedRequests.Add(MOMetadata); 
+            this.SupportedRequests.Add(MOMetadata);
             this.SupportedRequests.Add(SRMetadata);
 
-            MTMetadata = new ResponseMetadata(){
+            MTMetadata = new ResponseMetadata()
+            {
                 Id = new Guid("5b0007e7-db18-45f7-b0ff-beeea52fd7d4"),
                 Description = "EMI Protocol SMS Mobile terminated (MT) message (UCP 51)",
                 ApplicationName = "Generic",
                 ServiceCategory = "SMS Center",
                 ServiceName = "Send SMS MT",
-                RequestType = typeof(EMIProtocol),
+                RequestType = typeof(EmiProtocol),
             };
 
             SSMetadata = new ResponseMetadata()
@@ -141,7 +138,7 @@ namespace Hummingbird.Extension.SMSC
                 ApplicationName = "Generic",
                 ServiceCategory = "SMS Center",
                 ServiceName = "Open SMS Session",
-                RequestType = typeof(EMIProtocol),
+                RequestType = typeof(EmiProtocol),
             };
 
             AckMetadata = new ResponseMetadata()
@@ -151,7 +148,7 @@ namespace Hummingbird.Extension.SMSC
                 ApplicationName = "Generic",
                 ServiceCategory = "SMS Center",
                 ServiceName = "Sent SMS Acknoledgement",
-                RequestType = typeof(EMIProtocol),
+                RequestType = typeof(EmiProtocol),
             };
 
             this.SupportedResponses.Add(MTMetadata);
@@ -164,8 +161,8 @@ namespace Hummingbird.Extension.SMSC
         /// </summary>
         public override void Start()
         {
-            emiservice = new EMIService(this);
-            sersock = new SocketServer(CallbackThreadType.ctIOThread, emiservice);
+            Emiservice = new EmiService(this);
+            sersock = new SocketServer(CallbackThreadType.ctIOThread, Emiservice);
             System.Net.IPEndPoint endpoint;
             if (localIp == "*")
             {
@@ -178,7 +175,7 @@ namespace Hummingbird.Extension.SMSC
             SocketListener sl = sersock.AddListener("EMI", endpoint);
             sl.Start();
             IsRunning = true;
-            
+
         }
 
         /// <summary>
@@ -193,7 +190,7 @@ namespace Hummingbird.Extension.SMSC
                 sersock = null;
             }
             IsRunning = false;
-            emiservice.Stop();     
+            EmiService.Stop();
         }
 
         /// <summary>
@@ -202,7 +199,7 @@ namespace Hummingbird.Extension.SMSC
         /// </summary>
         /// <param name="appliedParameters">The parameters and values to take account by the service.</param>
         public override void ApplySettings(IEnumerable<Parameter> appliedParameters)
-        { 
+        {
             base.ApplySettings(appliedParameters);
             if (Parameters[PARAM_BINDING_ADDRESS].Value != "*")
             {
@@ -233,14 +230,14 @@ namespace Hummingbird.Extension.SMSC
             object requestObject = requestData.Data;
             Message message = new Message();
 
-            if (EMIService.Buffers.Count > 0)
+            if (EmiService.Buffers.Count > 0)
             {
                 message.Direction = MessageDirection.Outgoing;
                 message.Status = MessageStatus.Pending;
                 if (requestMetadata == MOMetadata)
                 {
                     SmsMo request = (SmsMo)requestObject;
-                    string messagemo = EMIProtocol.CreateMO(request.Sender, request.Receiver, request.MessageText, new DateTimeOffset(DateTime.Now), request.MessageFormat, MT.AlphaNumeric);
+                    string messagemo = EmiProtocol.CreateMO(request.Sender, request.Receiver, request.MessageText, new DateTimeOffset(DateTime.Now), request.MessageFormat, MT.AlphaNumeric);
                     EmiMessage mm = new EmiMessage();
                     mm.CreateDate = new DateTimeOffset(DateTime.Now);
                     mm.Direction = 0;
@@ -248,12 +245,12 @@ namespace Hummingbird.Extension.SMSC
                     mm.FriendlyMessage = "SMS MO:" + request.Sender + " -> " + request.Receiver + " : " + request.MessageText + " (" + request.MessageText.Length + " chars)";
                     mm.Type = EmiMessageType.MO;
                     mm.Message = message;
-                    emiservice.SendMOSRACK(mm, null);
+                    EmiService.SendMOSRACK(mm, null);
                 }
                 else if (requestMetadata == SRMetadata)
                 {
                     SmsSr request = (SmsSr)requestObject;
-                    string messagemo = EMIProtocol.CreateSR(request.OAdC, request.AdC, request.SCTS, request.Dst.ToString(), request.Rsn.ToString(), request.Text);
+                    string messagemo = EmiProtocol.CreateSR(request.OAdC, request.AdC, request.SCTS, request.Dst.ToString(), request.Rsn.ToString(), request.Text);
                     EmiMessage mm = new EmiMessage();
                     mm.CreateDate = new DateTimeOffset(DateTime.Now);
                     mm.Direction = 0;
@@ -261,12 +258,12 @@ namespace Hummingbird.Extension.SMSC
                     mm.FriendlyMessage = "SMS SR:" + request.OAdC + " -> " + request.AdC + " : " + request.Text + " (" + request.Text.Length + " chars)";
                     mm.Type = EmiMessageType.SR;
                     mm.Message = message;
-                    emiservice.SendMOSRACK(mm, null);
+                    EmiService.SendMOSRACK(mm, null);
                 }
             }
             else
             {
-                throw new Exception("You must have an active SMS Connection before sending SMSMO Messages.");
+                throw new InvalidOperationException ("You must have an active SMS Connection before sending SMSMO Messages.");
             }
         }
 
@@ -278,21 +275,5 @@ namespace Hummingbird.Extension.SMSC
 
     }
 
-    /// <summary>
-    /// Changes the behavior that SMS-C simulator behaves when an MT message is received.
-    /// </summary>
-    public enum MTBehavior {
-        /// <summary>
-        /// Reply with a MT ACK
-        /// </summary>
-        ACK,
-        /// <summary>
-        /// Reply with a MT NACK
-        /// </summary>
-        NACK,
-        /// <summary>
-        /// Does not reply the MT
-        /// </summary>
-        Nothing
-    }
+
 }
