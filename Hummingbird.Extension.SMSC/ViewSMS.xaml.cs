@@ -535,10 +535,23 @@ namespace Hummingbird.Extension.SMSC
             viewAnalyse.Items.Add(new Variable("VP - Validity period", GetTime(VP)));
             viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", GetValueFrom(rpids, RPID)));
             viewAnalyse.Items.Add(new Variable("MT - Message Type", GetValueFrom(mts, MT)));
+
+            AnalyseMT(MT, bit, NMsg, AMsg, TMsg, NB);
+            viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
+            viewAnalyse.Items.Add(new Variable("PR - Priority Requested", PR));
+            viewAnalyse.Items.Add(new Variable("MCLs - Message Class", MCLs));
+            viewAnalyse.Items.Add(new Variable("RPI - Reply Path", RPI));
+            viewAnalyse.Items.Add(new Variable("OTOA - Originator Type Of Address", GetValueFrom(otoas, OTOA)));
+            viewAnalyse.Items.Add(new Variable("XSer - Extra Services", XSer));
+            AnalyseXser(XSer);
+        }
+
+        private void AnalyseMT(string MT, int bit, string NMsg, string AMsg, string TMsg, string NB)
+        {
+            string decodedMsg = string.Empty;
             switch (MT)
             {
                 case "2":
-                    //NMsg = message.FriendlyMessage;
                     viewAnalyse.Items.Add(new Variable("NMsg", NMsg));
                     decodedMsg = NMsg;
                     break;
@@ -568,13 +581,6 @@ namespace Hummingbird.Extension.SMSC
                 viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EmiProtocol.GSM8HexToString(decodedMsg)));
             }
 
-            viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
-            viewAnalyse.Items.Add(new Variable("PR - Priority Requested", PR));
-            viewAnalyse.Items.Add(new Variable("MCLs - Message Class", MCLs));
-            viewAnalyse.Items.Add(new Variable("RPI - Reply Path", RPI));
-            viewAnalyse.Items.Add(new Variable("OTOA - Originator Type Of Address", GetValueFrom(otoas, OTOA)));
-            viewAnalyse.Items.Add(new Variable("XSer - Extra Services", XSer));
-            AnalyseXser(XSer);
         }
 
         private void Analyse_MessageMO()
@@ -614,39 +620,7 @@ namespace Hummingbird.Extension.SMSC
             viewAnalyse.Items.Add(new Variable("RPID - Replace PID value", GetValueFrom(rpids, RPID)));
             viewAnalyse.Items.Add(new Variable("SCTS - Service Centre Time Stamp", GetTime(SCTS)));
             viewAnalyse.Items.Add(new Variable("MT - Message Type", MT));
-            switch (MT)
-            {
-                case "2":
-                    //NMsg = message.FriendlyMessage;
-                    viewAnalyse.Items.Add(new Variable("NMsg - Numeric message", NMsg));
-                    decodedMsg = NMsg;
-                    break;
-                case "3":
-                    //AMsg = message.FriendlyMessage;
-                    viewAnalyse.Items.Add(new Variable("AMsg - Alphanumeric message encoded into IRA characters.", AMsg));
-                    decodedMsg = AMsg;
-                    break;
-                case "4":
-                    //TMsg = message.FriendlyMessage;
-                    viewAnalyse.Items.Add(new Variable("NB - No. of bits in Transparent Data (TD) message", NB));
-                    viewAnalyse.Items.Add(new Variable("TMsg - TD message encoded into IRA characters", TMsg));
-                    decodedMsg = TMsg;
-                    break;
-            }
-
-            if (bit == 16)
-            {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(decodedMsg.ToCharArray()))));
-            }
-            else if (bit == 7)
-            {
-                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EmiProtocol.GSM7HexToString(decodedMsg)));
-            }
-            else
-            {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EmiProtocol.GSM8HexToString(decodedMsg)));
-            }
-
+            AnalyseMT(MT, bit, NMsg, AMsg, TMsg, NB);
             viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
             viewAnalyse.Items.Add(new Variable("DCs - Deprecated", DCs));
             viewAnalyse.Items.Add(new Variable("MCLs - Message Class", MCLs));
@@ -725,38 +699,7 @@ namespace Hummingbird.Extension.SMSC
             viewAnalyse.Items.Add(new Variable("DSCTS - Delivery time stamp", GetTime(DSCTS)));
 
             viewAnalyse.Items.Add(new Variable("MT - Message Type", MT));
-            switch (MT)
-            {
-                case "2":
-                    //NMsg = message.FriendlyMessage;
-                    viewAnalyse.Items.Add(new Variable("NMsg - Numeric message", NMsg));
-                    decodedMsg = NMsg;
-                    break;
-                case "3":
-                    //AMsg = message.FriendlyMessage;
-                    viewAnalyse.Items.Add(new Variable("AMsg - Alphanumeric message encoded into IRA characters.", AMsg));
-                    decodedMsg = AMsg;
-                    break;
-                case "4":
-                    //TMsg = message.FriendlyMessage;
-                    viewAnalyse.Items.Add(new Variable("NB - No. of bits in Transparent Data (TD) message", NB));
-                    viewAnalyse.Items.Add(new Variable("TMsg - TD message encoded into IRA characters", TMsg));
-                    decodedMsg = TMsg;
-                    break;
-            }
-
-            if (bit == 16)
-            {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 16 bit Message)", System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(decodedMsg.ToCharArray()))));
-            }
-            else if (bit == 7)
-            {
-                viewAnalyse.Items.Add(new Variable("  (Decoded compressed 7 bit Message)", EmiProtocol.GSM7HexToString(decodedMsg)));
-            }
-            else
-            {
-                viewAnalyse.Items.Add(new Variable("  (Decoded 8 bit (uncompressed 7 bit) Message)", EmiProtocol.GSM8HexToString(decodedMsg)));
-            }
+            AnalyseMT(MT, bit, NMsg, AMsg, TMsg, NB);
 
             viewAnalyse.Items.Add(new Variable("MMS - More Messages to Send", MMS));
             viewAnalyse.Items.Add(new Variable("HPLMN - Home PLMN Address", HPLMN));
@@ -979,15 +922,15 @@ namespace Hummingbird.Extension.SMSC
             try
             {
                 int day = int.Parse(v.Substring(0, 2));
-                int month = int.Parse(v.Substring(2, 2)); ;
-                int year = 2000 + int.Parse(v.Substring(4, 2)); ;
-                int hour = int.Parse(v.Substring(6, 2)); ;
-                int minute = int.Parse(v.Substring(8, 2)); ;
+                int month = int.Parse(v.Substring(2, 2)); 
+                int year = 2000 + int.Parse(v.Substring(4, 2)); 
+                int hour = int.Parse(v.Substring(6, 2)); 
+                int minute = int.Parse(v.Substring(8, 2)); 
 
                 int second = 0;
                 try
                 {
-                    second = int.Parse(v.Substring(10, 2)); ;
+                    second = int.Parse(v.Substring(10, 2)); 
                 }
                 catch
                 {
@@ -1002,17 +945,17 @@ namespace Hummingbird.Extension.SMSC
             }
         }
 
-        private string GetDst(string Value)
+        private static string GetDst(string Value)
         {
             return GetValueFrom(dsts, Value);
         }
 
-        private string GetRsn(string Value)
+        private static string GetRsn(string Value)
         {
             return GetValueFrom(rsns, Value);
         }
 
-        private string GetEC(string Value)
+        private static string GetEC(string Value)
         {
             return GetValueFrom(ecs, Value);
         }
