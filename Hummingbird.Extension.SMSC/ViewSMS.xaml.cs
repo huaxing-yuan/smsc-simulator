@@ -459,6 +459,30 @@ namespace Hummingbird.Extension.SMSC
         #endregion
 
         #region Analyse
+
+        private static void GetAdc(string AdC, string OAdC, out string sAdC, out string sOAdC)
+        {
+            sAdC = AdC;
+            sOAdC = OAdC;
+            try
+            {
+
+                if (!int.TryParse(AdC, out int test))
+                {
+                    sAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
+                }
+
+                if (!int.TryParse(OAdC, out test))
+                {
+                    sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
+                }
+            }
+            catch
+            {
+                //ignore error if there are errors 
+            }
+        }
+
         private void Analyse_MessageMT()
         {
             string[] pairs = trame.Split('/');
@@ -501,24 +525,8 @@ namespace Hummingbird.Extension.SMSC
             viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
             viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPER)));
 
-            string sAdC = AdC;
-            string sOAdC = OAdC;
-            try
-            {
 
-                if (!int.TryParse(AdC, out int test))
-                {
-                    sAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
-                }
-
-                if (!int.TryParse(OAdC, out test))
-                {
-                    sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
-                }
-            }
-            catch
-            { //ignore error if there are errors 
-            }
+            GetAdc(AdC, OAdC, out string sAdC, out string sOAdC);
 
             viewAnalyse.Items.Add(new Variable("AdC - Address code recipient for the SM", sAdC));
             viewAnalyse.Items.Add(new Variable("OAdC - Address code originator", sOAdC));
@@ -660,25 +668,7 @@ namespace Hummingbird.Extension.SMSC
 
             string decodedMsg = string.Empty;
 
-            string sAdC = AdC;
-            string sOAdC = OAdC;
-            try
-            {
-
-                if (!int.TryParse(AdC, out int test))
-                {
-                    sAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(AdC.Substring(2)).Substring(0, int.Parse(AdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
-                }
-
-                if (!int.TryParse(OAdC, out test))
-                {
-                    sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
-                }
-            }
-            catch
-            {
-                //ignore error if there are errors 
-            }
+            GetAdc(AdC, OAdC, out string sAdC, out string sOAdC);
 
 
             viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
