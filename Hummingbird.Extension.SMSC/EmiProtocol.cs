@@ -197,7 +197,9 @@ namespace Hummingbird.Extension.SMSC
                 OR = pairs[2].ToUpper();
                 OT = pairs[3];
             }
-            catch { }
+            catch {
+                //if the trame is not in good state, just ignore it.
+            }
         }
         /// <summary>
         /// Gets the real SCTS.
