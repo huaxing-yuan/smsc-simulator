@@ -96,7 +96,7 @@ namespace Hummingbird.Extension.SMSC
             {
                 BitmapImage src = new BitmapImage();
                 src.BeginInit();
-                src.UriSource = new Uri("/Images/smsc.png", UriKind.Relative);
+                src.UriSource = new Uri("pack://application:,,,/Hummingbird.Extension.SMSC;component/smsc.png", UriKind.Absolute);
                 src.CacheOption = BitmapCacheOption.OnLoad;
                 src.EndInit();
                 this.ImageSource = src;

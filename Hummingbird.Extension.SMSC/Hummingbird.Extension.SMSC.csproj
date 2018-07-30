@@ -139,10 +139,11 @@
     <Content Include="ExtensionDefinition.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="smsc.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)\Hummingbird.Extension.SMSC.dll" "C:\Users\x_sli\AppData\Roaming\Hummingbird\Extensions\a775057e-3fea-4c0f-bf6e-1b3d2dd877d3\Hummingbird.Extension.SMSC.dll"
-copy /y "$(TargetDir)\Hummingbird.Extension.SMSC.pdb" "C:\Users\x_sli\AppData\Roaming\Hummingbird\Extensions\a775057e-3fea-4c0f-bf6e-1b3d2dd877d3\Hummingbird.Extension.SMSC.pdb"</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Debug copy /y "$(TargetDir)\Hummingbird.Extension.SMSC.dll" "C:\Users\x_sli\AppData\Roaming\Hummingbird\Extensions\a775057e-3fea-4c0f-bf6e-1b3d2dd877d3\Hummingbird.Extension.SMSC.dll"
+if $(ConfigurationName) == Debug  copy /y "$(TargetDir)\Hummingbird.Extension.SMSC.pdb" "C:\Users\x_sli\AppData\Roaming\Hummingbird\Extensions\a775057e-3fea-4c0f-bf6e-1b3d2dd877d3\Hummingbird.Extension.SMSC.pdb"</PostBuildEvent>
   </PropertyGroup>
 </Project>
