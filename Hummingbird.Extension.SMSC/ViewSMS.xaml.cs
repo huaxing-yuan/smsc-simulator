@@ -516,7 +516,8 @@ namespace Hummingbird.Extension.SMSC
                     sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
                 }
             }
-            catch { //ignore error if there are errors 
+            catch
+            { //ignore error if there are errors 
             }
 
             viewAnalyse.Items.Add(new Variable("AdC - Address code recipient for the SM", sAdC));
@@ -700,7 +701,8 @@ namespace Hummingbird.Extension.SMSC
                     sOAdC += " (Decoded value: " + EmiProtocol.GSM7HexToString(OAdC.Substring(2)).Substring(0, int.Parse(OAdC.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14) + ")";
                 }
             }
-            catch {
+            catch
+            {
                 //ignore error if there are errors 
             }
 
@@ -987,7 +989,8 @@ namespace Hummingbird.Extension.SMSC
                 {
                     second = int.Parse(v.Substring(10, 2)); ;
                 }
-                catch {
+                catch
+                {
                     //ignore error if there are errors 
                 }
 

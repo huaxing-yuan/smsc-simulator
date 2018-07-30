@@ -34,6 +34,96 @@ namespace Hummingbird.Extension.SMSC
         private string rawmessage;
         private string friendlyMessage;
 
+        internal static string GetFriendlyMessage(string rawmessage)
+        {
+            string friendlyMessage = string.Empty;
+            string op = "0";
+            string to = "0";
+            string from = "0";
+            string direction = "O";
+            try
+            {
+                string[] m = rawmessage.Split('/');
+                op = m[3];
+                to = m[4];
+                from = m[5];
+                direction = m[2];
+                string hexmessage = m[24];
+                string message = null;
+                string XSER = m[34];
+                string MT4 = m[22];
+                if (XSER.Contains("020108") || XSER.Contains("020109") || XSER.Contains("02010A") || XSER.Contains("02010B") || XSER.Contains("020118") || XSER.Contains("020119") || XSER.Contains("02011A") || XSER.Contains("02011B") || XSER.Contains("020128") || XSER.Contains("020129") || XSER.Contains("02012A") || XSER.Contains("02012B") || XSER.Contains("020138") || XSER.Contains("020139") || XSER.Contains("02013A") || XSER.Contains("02013B"))
+                {
+                    //Unicode
+                    message = System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(hexmessage.ToCharArray()));
+                }
+                else
+                {
+                    //GSM8BIT / GSM7BIT
+                    message = EmiProtocol.GSM8HexToString(hexmessage);
+                }
+                int shortcode;
+                if (op == "51")
+                {
+                    if (int.TryParse(from, out shortcode))
+                    {
+                        if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
+                    }
+                    else
+                    {
+                        from = EmiProtocol.GSM7HexToString(from.Substring(2)).Substring(0, int.Parse(from.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
+                        if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
+                    }
+                }
+                else
+                {
+                    if (int.TryParse(to, out shortcode))
+                    {
+                        if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
+                    }
+                    else
+                    {
+                        to = EmiProtocol.GSM7HexToString(to.Substring(2)).Substring(0, int.Parse(to.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
+                        if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
+                    }
+                }
+            }
+            catch
+            {
+                if (rawmessage[0] == '\x02') friendlyMessage = string.Empty;
+                else friendlyMessage = "SMS: " + rawmessage;
+
+                if (op == "60" && direction == "O")
+                {
+                    friendlyMessage = "SMS: Open Session Request";
+                }
+                else if (op == "60" && direction == "R")
+                {
+                    friendlyMessage = "SMS: Open Session Acknolegement";
+                }
+                else if (op == "51" && direction == "R")
+                {
+                    friendlyMessage = "SMS: MT Acknowlegement";
+                }
+                else if (op == "51" && direction == "O")
+                {
+                    friendlyMessage = "SMS: Empty MT (Ping)";
+                }
+                else if (op == "52")
+                {
+                    friendlyMessage = "SMS: MO Acknowlegement";
+                }
+                else if (op == "53")
+                {
+                    friendlyMessage = "SMS: SR Acknowlegement";
+                }
+
+
+            }
+            return friendlyMessage;
+        }
+
+
         /// <summary>
         /// The original UCP / EMI Trame of the current SMS message.
         /// </summary>
@@ -55,50 +145,7 @@ namespace Hummingbird.Extension.SMSC
                 rawmessage = value;
                 try
                 {
-                    string[] m = rawmessage.Split('/');
-                    op = m[3];
-                    to = m[4];
-                    from = m[5];
-                    direction = m[2];
-                    string hexmessage = m[24];
-                    string message = null;
-                    string XSER = m[34];
-                    string MT4 = m[22];
-                    if (XSER.Contains("020108") || XSER.Contains("020109") || XSER.Contains("02010A") || XSER.Contains("02010B") || XSER.Contains("020118") || XSER.Contains("020119") || XSER.Contains("02011A") || XSER.Contains("02011B") || XSER.Contains("020128") || XSER.Contains("020129") || XSER.Contains("02012A") || XSER.Contains("02012B") || XSER.Contains("020138") || XSER.Contains("020139") || XSER.Contains("02013A") || XSER.Contains("02013B"))
-                    {
-                        //Unicode
-                        message = System.Text.UnicodeEncoding.BigEndianUnicode.GetString(EmiProtocol.Decode(hexmessage.ToCharArray()));
-                    }
-                    else
-                    {
-                        //GSM8BIT / GSM7BIT
-                        message = EmiProtocol.GSM8HexToString(hexmessage);
-                    }
-                    int shortcode;
-                    if (op == "51")
-                    {
-                        if (int.TryParse(from, out shortcode))
-                        {
-                            if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
-                        }
-                        else
-                        {
-                            from = EmiProtocol.GSM7HexToString(from.Substring(2)).Substring(0, int.Parse(from.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
-                            if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
-                        }
-                    }
-                    else
-                    {
-                        if (int.TryParse(to, out shortcode))
-                        {
-                            if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
-                        }
-                        else
-                        {
-                            to = EmiProtocol.GSM7HexToString(to.Substring(2)).Substring(0, int.Parse(to.Substring(0, 2), NumberStyles.HexNumber) * 8 / 14);
-                            if (m[5] != string.Empty) friendlyMessage = string.Format("SMS: {0} -> {1} : {2} ({3} chars)", from, to, message, message.Length);
-                        }
-                    }
+                    friendlyMessage = GetFriendlyMessage(rawmessage);
                 }
                 catch
                 {
