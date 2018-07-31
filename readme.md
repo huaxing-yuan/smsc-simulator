@@ -10,7 +10,7 @@ While this extension is installed to Hummingbird App, you can find:
 2. A Custom Message Viewer, automatically shown when you want to view a received message.
 3. MO, SR requests can be sent through socket when a client is connected. (When multiple socket clients are connected, MO and SR are always sent to the first client)
 
-[![Build status](https://hummingbird.visualstudio.com/Hummingbird%20ALM/_apis/build/status/Hummingbird%20Extension%20SMS-C)](https://hummingbird.visualstudio.com/Hummingbird%20ALM/_build/latest?definitionId=13)
+![Build status](https://hummingbird.visualstudio.com/_apis/public/build/definitions/e4481dd4-13a9-413a-bbc3-905032a1726a/13/badge)
 
 ## Aimed for demonstration
 This extension is aimed to demonstrate the extensibility of Hummingbird Test Framework:
