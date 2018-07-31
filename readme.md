@@ -10,6 +10,8 @@ While this extension is installed to Hummingbird App, you can find:
 2. A Custom Message Viewer, automatically shown when you want to view a received message.
 3. MO, SR requests can be sent through socket when a client is connected. (When multiple socket clients are connected, MO and SR are always sent to the first client)
 
+master: ![master](https://hummingbird.visualstudio.com/Hummingbird%20ALM/_apis/build/status/Hummingbird%20Extension%20SMS-C)
+
 ## Aimed for demonstration
 This extension is aimed to demonstrate the extensibility of Hummingbird Test Framework:
 1. By implementing a Non HTTP protocol (UCP-EMI protocol is based on TCP socket)
