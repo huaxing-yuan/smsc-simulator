@@ -6,8 +6,8 @@ using System.Text;
 namespace Hummingbird.Extension.SMSC
 {
     /// <summary>
-    /// This Class implements fields and operations used by the EMI Prototol.
-    /// This example does not implement all the services decribed by the EMI-UCP interface. Only the following services are implemented.
+    /// This Class implements fields and operations used by the EMI Protocol.
+    /// This example does not implement all the services described by the EMI-UCP interface. Only the following services are implemented.
     /// UCP 60 - Session
     /// UCP 51 - Submit Short Message Operation
     /// UCP 52 - Delivery Short Message Operation
@@ -35,12 +35,12 @@ namespace Hummingbird.Extension.SMSC
         /// <summary>
         /// // 2 num char 00-99
         /// </summary>
-        string TRN;
+        readonly string TRN;
 
         /// <summary>
         ///  5 num char, Total number of IRA characters contained between stx and etx, right justified with leading zeros.
         /// </summary>
-        string LRN;
+        readonly string LRN;
 
         /// <summary>
         /// Char O or R, “O” indicates operation, “R” indicates result
@@ -97,7 +97,7 @@ namespace Hummingbird.Extension.SMSC
         /// Gets or sets the XSER field.
         /// </summary>
         /// <value>
-        /// The x ser.
+        /// The XSER
         /// </value>
         public string XSer { get; private set; }
         string SCTS { get; set; }
@@ -214,7 +214,7 @@ namespace Hummingbird.Extension.SMSC
             string local_scts = Date.ToString(SCTSFormat);
             string new_scts = string.Empty;
 
-            //If the STCSCache passed 1000 pairs, we clean all item earlier than the local_scts;
+            //If the STCSCache passed 1000 pairs, we clean all item earlier than the local_scts
             if (SCTSCache.Count > 1000)
             {
                 lock (SCTSCache)
@@ -250,12 +250,18 @@ namespace Hummingbird.Extension.SMSC
             }
             else
             {
-                //in this case, there are no sms has been sent to this oAdC and AdC pair, use Current Time as SCTS and add it to the dinctionary.
+                //in this case, there are no sms has been sent to this oAdC and AdC pair, use Current Time as SCTS and add it to the dictionary.
                 SCTSCache.Add(OAdc + Adc, local_scts);
                 return local_scts;
             }
         }
 
+        /// <summary>
+        /// Creates a StatusReport message according to the MT message
+        /// </summary>
+        /// <param name="DST">The DST.</param>
+        /// <param name="RSN">The RSN.</param>
+        /// <returns>A EMI Trame containing the SR Message</returns>
         internal string CreateSRForMT(int DST, string RSN)
         {
             int localTRN = TRN_MO++;
@@ -269,6 +275,16 @@ namespace Hummingbird.Extension.SMSC
             return sr;
         }
 
+        /// <summary>
+        /// Creates a Status Report message from the given criteria
+        /// </summary>
+        /// <param name="OAdC">The o ad c.</param>
+        /// <param name="AdC">The ad c.</param>
+        /// <param name="SCTS">The SCTS.</param>
+        /// <param name="DST">The DST.</param>
+        /// <param name="RSN">The RSN.</param>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
         internal static string CreateSR(string OAdC, string AdC, string SCTS, string DST, string RSN, string text)
         {
             int localTRN = TRN_MO++;
@@ -290,7 +306,7 @@ namespace Hummingbird.Extension.SMSC
             if (AdC == string.Empty) mt = string.Empty;
             if (isACK)
             {
-                //exemple of ACK: STX01/00043/R/51/A//0663301342:ddMMyyHHmmss/CheckSumETX
+                //example of ACK: STX01/00043/R/51/A//0663301342:ddMMyyHHmmss/CheckSumETX
                 string ack = STX + TRN + "/LLLLL/R/" + OT + "/A//" + mt + "/SS" + ETX;
                 ack = ack.Replace("LLLLL", (ack.Length - 2).ToString("00000"));
                 ack = CheckSum(ack);
@@ -298,7 +314,7 @@ namespace Hummingbird.Extension.SMSC
             }
             else
             {
-                //exemple of NACK:   STX01/00022/R/51/N/31//0AETX
+                //example of NACK:   STX01/00022/R/51/N/31//0AETX
                 string nack = STX + TRN + "/LLLLL/R/" + OT + "/N/" + NACK_CODE + "/" + descriptionError + "/SS" + ETX;
                 nack = nack.Replace("LLLLL", (nack.Length - 2).ToString("00000"));
                 nack = CheckSum(nack);
@@ -310,7 +326,7 @@ namespace Hummingbird.Extension.SMSC
         {
             if (isACK)
             {
-                //exemple of ACK: STX01/00043/R/51/A//0663301342:ddMMyyHHmmss/CheckSumETX
+                //example of ACK: STX01/00043/R/51/A//0663301342:ddMMyyHHmmss/CheckSumETX
                 string ack = STX + TRN + "/LLLLL/R/60/A//SS" + ETX;
                 ack = ack.Replace("LLLLL", (ack.Length - 2).ToString("00000"));
                 ack = CheckSum(ack);
@@ -318,7 +334,7 @@ namespace Hummingbird.Extension.SMSC
             }
             else
             {
-                //exemple of NACK:   STX01/00022/R/51/N/31//0AETX
+                //example of NACK:   STX01/00022/R/51/N/31//0AETX
                 string nack = STX + TRN + "/LLLLL/R/60/N/" + NACK_CODE + "//SS" + ETX;
                 nack = nack.Replace("LLLLL", (nack.Length - 2).ToString("00000"));
                 nack = CheckSum(nack);
@@ -388,6 +404,12 @@ namespace Hummingbird.Extension.SMSC
             return Decode(hexValue.ToCharArray());
         }
 
+        /// <summary>
+        /// Encodes the specified text from the given <see cref="MessageFormat"/>
+        /// </summary>
+        /// <param name="text">The text to be encoded</param>
+        /// <param name="format">The Message Format</param>
+        /// <returns></returns>
         internal static string Encode(string text, MessageFormat format)
         {
             switch (format)
@@ -402,6 +424,11 @@ namespace Hummingbird.Extension.SMSC
             return string.Empty;
         }
 
+        /// <summary>
+        /// Converts a Unicode string to a GSM 8-bit HexString
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
         internal static string TextToGSM8HexString(string text)
         {
             StringBuilder result = new StringBuilder();
@@ -415,7 +442,7 @@ namespace Hummingbird.Extension.SMSC
                     continue;
                 }
 
-                //find char in standard table;
+                //find char in standard table
                 for (int i = 0; i < BufGSMToLatin.Length; i++)
                 {
                     if (c == BufGSMToLatin[i])
@@ -427,7 +454,7 @@ namespace Hummingbird.Extension.SMSC
                 }
 
 
-                //find char in extended table;
+                //find char in extended table
                 for (int i = 0; i < BufGSMExtendedToLatin.Length; i++)
                 {
                     if (c == BufGSMExtendedToLatin[i])
@@ -444,6 +471,11 @@ namespace Hummingbird.Extension.SMSC
             return result.ToString();
         }
 
+        /// <summary>
+        /// Converts a text to Unicode hexadecimal string.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
         internal static string TextToUnicodeHexString(string text)
         {
             StringBuilder returnValue = new StringBuilder();
@@ -463,11 +495,21 @@ namespace Hummingbird.Extension.SMSC
             return (returnValue.ToString().ToUpper());
         }
 
+        /// <summary>
+        /// Converts from Texts to GSM7 hexadecimal string.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
         internal static string TextToGsm7HexString(string text)
         {
             return SeptetToOctet(StringToSeptet(text));
         }
 
+        /// <summary>
+        /// Converts a GSM 8-bit hexadecimal string to the text.
+        /// </summary>
+        /// <param name="gsmStr">The GSM string.</param>
+        /// <returns></returns>
         internal static string GSM8HexToString(string gsmStr)
         {
             StringBuilder returnValue = new StringBuilder();
@@ -503,6 +545,11 @@ namespace Hummingbird.Extension.SMSC
             return returnValue.ToString();
         }
 
+        /// <summary>
+        /// Converts a GSM 8-bit hexadecimal string to the text.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         internal static string GSM7HexToString(string s)
         {
             //first restore GSM7bit to GSM8bit
@@ -530,6 +577,11 @@ namespace Hummingbird.Extension.SMSC
             return GSM8HexToString(ByteToHexString(gsm8));
         }
 
+        /// <summary>
+        /// Converts a byte to hexadecimal string.
+        /// </summary>
+        /// <param name="b">The byte.</param>
+        /// <returns></returns>
         static private string ByteToHexString(byte[] b)
         {
             char[] sb = new char[b.Length * 2];
@@ -548,25 +600,26 @@ namespace Hummingbird.Extension.SMSC
             return twoBytes;
         }
 
-        /**
-         * Decode an array of hex chars
-         *
-         * @param hexChars an array of hex characters.
-         * @return the decode hex chars as bytes.
-         */
+
+        /// <summary>
+        /// Decodes the specified hexadecimal chars.
+        /// </summary>
+        /// <param name="hexChars">hexChars an array of hex characters.</param>
+        /// <returns>the decode hex chars as bytes.</returns>
         internal static byte[] Decode(char[] hexChars)
         {
             return Decode(hexChars, 0, hexChars.Length);
         }
 
-        /**
-         * Decode an array of hex chars.
-         *
-         * @param hexChars an array of hex characters.
-         * @param starIndex the index of the first character to decode
-         * @param length the number of characters to decode.
-         * @return the decode hex chars as bytes.
-         */
+
+        /// <summary>
+        /// Decodes an array of specified hexadecimal chars.
+        /// </summary>
+        /// <param name="hexChars">hexChars an array of hex characters.</param>
+        /// <param name="startIndex">starIndex the index of the first character to decode</param>
+        /// <param name="length">length the number of characters to decode..</param>
+        /// <returns>the decode hex chars as bytes.</returns>
+        /// <exception cref="ArgumentException">Length must be even</exception>
         internal static byte[] Decode(char[] hexChars, int startIndex, int length)
         {
             if ((length & 1) != 0)
@@ -580,9 +633,12 @@ namespace Hummingbird.Extension.SMSC
             return result;
         }
 
-        /**
-         * Internal method to turn a hex char into a nibble.
-         */
+        /// <summary>
+        /// Internal method to turn a hex char into a nibble.
+        /// </summary>
+        /// <param name="ch">The ch.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Not a hex char - '" + ch + "'</exception>
         private static int HexCharToNibble(char ch)
         {
             if ((ch >= '0') && (ch <= '9'))
@@ -746,7 +802,10 @@ namespace Hummingbird.Extension.SMSC
 
 
         #region Charactor Tables
-        //static members
+        //static members        
+        /// <summary>
+        /// The iso to unicode table
+        /// </summary>
         static readonly char[] isoToUnicode =
         {
             '\u0000','\u0001','\u0002','\u0003','\u0004','\u0005','\u0006','\u0007',
@@ -783,6 +842,9 @@ namespace Hummingbird.Extension.SMSC
             '\u0171','\u00F9','\u00FA','\u00FB','\u00FC','\u0119','\u021B','\u00FF'
         };
 
+        /// <summary>
+        /// The gsm 7-bit char to unicode convert table
+        /// </summary>
         static readonly char[] GSM7BitToUnicode =
         {
             '\u0040','\u00A3','\u0024','\u00A5','\u00E8','\u00E9','\u00F9','\u00Ec',  //00
@@ -900,11 +962,11 @@ namespace Hummingbird.Extension.SMSC
         /// </summary>
         Unicode,
         /// <summary>
-        /// The gs m7
+        /// The gsm 7-bit
         /// </summary>
         GSM7,
         /// <summary>
-        /// The gs m8
+        /// The gsm 8-bit
         /// </summary>
         GSM8
     };

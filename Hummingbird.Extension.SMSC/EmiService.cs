@@ -19,8 +19,8 @@ namespace Hummingbird.Extension.SMSC
         int totalConnections = 0;
         private static List<ISocketConnection> connections = new List<ISocketConnection>();
         private static int count = 0;
-        internal static List<MessageBuffers> Buffers = new List<MessageBuffers>();
-        internal static SmsServer referredServer;
+        internal readonly static List<MessageBuffers> Buffers = new List<MessageBuffers>();
+        internal static SmsServer referredServer { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmiService"/> class.
@@ -71,8 +71,8 @@ namespace Hummingbird.Extension.SMSC
             }
             else
             {
-                //byte[] b = GetMessage(e.Connection.SocketHandle.ToInt32());
-                //e.Connection.BeginSend(b);
+                //byte[] b = GetMessage(e.Connection.SocketHandle.ToInt32())
+                //e.Connection.BeginSend(b)
             }
 
 
@@ -97,7 +97,7 @@ namespace Hummingbird.Extension.SMSC
 
         public void OnSent(MessageEventArgs e)
         {
-
+            //nothing to process here.
         }
 
         public void OnDisconnected(ConnectionEventArgs e)
@@ -133,7 +133,7 @@ namespace Hummingbird.Extension.SMSC
                 if (!string.IsNullOrEmpty(msg))
                 {
 
-                    //Response;
+                    //Response
                     EmiProtocol eo;
                     try
                     {
@@ -151,7 +151,7 @@ namespace Hummingbird.Extension.SMSC
                             {
                                 MTType = EmiMessageType.MT;
 
-                                if (workingbuffer.AcceptsMT == false)
+                                if (!workingbuffer.AcceptsMT)
                                 {
                                     response = eo.CreateACK51(false, "07", "Authentication failure");
                                 }
@@ -168,7 +168,7 @@ namespace Hummingbird.Extension.SMSC
                                 }
                                 else
                                 {
-                                    //HERE Check The return type;
+                                    //HERE Check The return type
                                     switch (referredServer.mtBehavior)
                                     {
                                         case MTBehavior.ACK:
@@ -215,7 +215,7 @@ namespace Hummingbird.Extension.SMSC
                                 workingbuffer.AcceptsMT = true;
                             }
 
-                            //Add MT To Log;
+                            //Add MT To Log
 
                             EmiMessage m = new EmiMessage
                             {
@@ -282,7 +282,7 @@ namespace Hummingbird.Extension.SMSC
                                     };
 
                                     //Before we sent SR directly, like this ->
-                                    //SendMOSRACK(sr);
+                                    //SendMOSRACK(sr)
                                     //Now we stock the SR to a queue, and there will be a thread who will look this queue.
                                     //With this method, the SR can be sent 5 or 10 seconds later.
                                     workingbuffer.SRToBeSent.Enqueue(sr);
@@ -292,13 +292,13 @@ namespace Hummingbird.Extension.SMSC
                             }
                             else
                             {
-                                //Log that nothing will be replied;
+                                //Log that nothing will be replied
                                 /*
-                                m2.Direction = 0;
-                                m2.CreateDate = new DateTimeOffset(DateTime.Now);
-                                m2.RAWMessage = "Nothing has been sent for this MT";
+                                m2.Direction = 0
+                                m2.CreateDate = new DateTimeOffset(DateTime.Now)
+                                m2.RAWMessage = "Nothing has been sent for this MT"
                                 lock(MainPage.Messages){
-                                    MainPage.Messages.Add(m2);
+                                    MainPage.Messages.Add(m2)
                                 }			
                                 */
                             }
@@ -399,7 +399,7 @@ namespace Hummingbird.Extension.SMSC
                     //because if we dont sleep, there will be a "Lock" at SRToBeSent
                     //to check the first SR to be sent
                     //the "Lock" will block another thread:
-                    // (MT traitement)
+                    // (MT process)
                     //So if no SR to be sent, we can sleep some time and let MTThread to receive MT...
                     Thread.Sleep(100);
                 }
@@ -431,10 +431,6 @@ namespace Hummingbird.Extension.SMSC
                                     if (!workingbuffer.Running) return;
                                 }
                             }
-                        }
-                        else
-                        {
-
                         }
                     }
                     Thread.Sleep(10);

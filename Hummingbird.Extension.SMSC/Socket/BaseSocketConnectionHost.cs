@@ -29,7 +29,7 @@
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
  * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -888,7 +888,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                         || (soex.SocketErrorCode == SocketError.ConnectionAborted)
                         || (soex.SocketErrorCode == SocketError.Disconnecting))
                     {
-                        connection.BeginDisconnect();
+                        connection?.BeginDisconnect();
                     }
                     else
                     {
@@ -1155,7 +1155,7 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
                         || (soex.SocketErrorCode == SocketError.ConnectionAborted)
                         || (soex.SocketErrorCode == SocketError.Disconnecting))
                     {
-                        connection.BeginDisconnect();
+                        connection?.BeginDisconnect();
                     }
                     else
                     {

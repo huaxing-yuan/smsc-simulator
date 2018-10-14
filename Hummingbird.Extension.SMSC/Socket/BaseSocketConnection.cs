@@ -29,7 +29,7 @@
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
  * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -99,7 +99,13 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         #region Constructor
 
-        internal BaseSocketConnection(BaseSocketConnectionHost host, BaseSocketConnectionCreator creator, System.Net.Sockets.Socket socket)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseSocketConnection"/> class.
+        /// </summary>
+        /// <param name="host">The host.</param>
+        /// <param name="creator">The creator.</param>
+        /// <param name="socket">The socket.</param>
+        protected BaseSocketConnection(BaseSocketConnectionHost host, BaseSocketConnectionCreator creator, System.Net.Sockets.Socket socket)
         {
 
             //----- Connection Id!

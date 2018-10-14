@@ -26,7 +26,7 @@ namespace Hummingbird.Extension.SMSC
         /// Sends the request enabled.
         /// </summary>
         /// <param name="canSendRequest">if set to <c>true</c> [can send request].</param>
-        /// <param name="errormessage">The errormessage.</param>
+        /// <param name="errormessage">The error message.</param>
         public void SendRequestEnabled(bool canSendRequest, string errormessage)
         {
             CanSendRequest = canSendRequest;

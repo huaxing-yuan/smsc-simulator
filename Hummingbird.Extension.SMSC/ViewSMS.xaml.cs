@@ -11,6 +11,8 @@ namespace Hummingbird.Extension.SMSC
     /// <summary>
     /// Interaction logic for ViewSMS.xaml
     /// </summary>
+    /// <seealso cref="Hummingbird.TestFramework.Extensibility.CustomMessageViewer" />
+    /// <seealso cref="System.Windows.Markup.IComponentConnector" />
 
     [MetadataId(new string[] {
         "2bee75e3-527d-48ec-9bad-c7b258259032", //MO - UCP 52
@@ -23,6 +25,9 @@ namespace Hummingbird.Extension.SMSC
     {
         string trame;
         EmiMessageType messageType = EmiMessageType.SYS;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ViewSMS"/> class.
+        /// </summary>
         public ViewSMS()
         {
             InitializeComponent();
@@ -75,7 +80,7 @@ namespace Hummingbird.Extension.SMSC
             }
             catch
             {
-                viewAnalyse.Items.Add(new Variable("Error", "Your Trame EMI is not valide"));
+                viewAnalyse.Items.Add(new Variable("Error", "Your EMI Frame is not valid"));
             }
         }
 
@@ -520,7 +525,6 @@ namespace Hummingbird.Extension.SMSC
                 bit = 16;
             }
 
-            string decodedMsg = string.Empty;
 
             viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
             viewAnalyse.Items.Add(new Variable("Operation", GetValueFrom(opers, OPER)));
@@ -564,12 +568,10 @@ namespace Hummingbird.Extension.SMSC
                     decodedMsg = NMsg;
                     break;
                 case "3":
-                    //AMsg = message.FriendlyMessage;
                     viewAnalyse.Items.Add(new Variable("AMsg", AMsg));
                     decodedMsg = AMsg;
                     break;
                 case "4":
-                    //TMsg = message.FriendlyMessage;
                     viewAnalyse.Items.Add(new Variable("NB - No. of bits in Transparent Data (TD) message", NB));
                     viewAnalyse.Items.Add(new Variable("TMsg", TMsg));
                     decodedMsg = TMsg;
@@ -618,7 +620,6 @@ namespace Hummingbird.Extension.SMSC
                 bit = 16;
             }
 
-            string decodedMsg = string.Empty;
 
 
             viewAnalyse.Items.Add(new Variable("Direction", GetValueFrom(dirs, DIR)));
@@ -633,7 +634,6 @@ namespace Hummingbird.Extension.SMSC
             viewAnalyse.Items.Add(new Variable("DCs - Deprecated", DCs));
             viewAnalyse.Items.Add(new Variable("MCLs - Message Class", MCLs));
             viewAnalyse.Items.Add(new Variable("RPI - Reply Path", RPI));
-            //viewAnalyse.Items.Add(new Variable("OTOA - Originator Type Of Address",OTOA));
             viewAnalyse.Items.Add(new Variable("HPLMN - Home PLMN Address", HPLMN));
             viewAnalyse.Items.Add(new Variable("XSer - Extra Services", XSer));
             AnalyseXser(XSer);
@@ -666,7 +666,6 @@ namespace Hummingbird.Extension.SMSC
                 bit = 16;
             }
 
-            string decodedMsg = string.Empty;
 
             GetAdc(AdC, OAdC, out string sAdC, out string sOAdC);
 
@@ -995,18 +994,26 @@ namespace Hummingbird.Extension.SMSC
                 default:
                     break;
             }
-            //ShowResult();
             viewAnalyse.Background = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255));
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                base.Dispose(disposing);
                 this.viewAnalyse.Items.Clear();
             }
         }
 
+        /// <summary>
+        /// Fill the custom message viewer with the data provided
+        /// </summary>
+        /// <param name="message">The <see cref="T:Hummingbird.TestFramework.Messaging.Message" /> containing the Request, Response, or the Tag</param>
         public override void ParseMessage(Message message)
         {
             //Message.Tag is the RAW trame message

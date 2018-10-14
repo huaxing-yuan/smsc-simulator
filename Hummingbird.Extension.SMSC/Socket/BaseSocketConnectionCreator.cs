@@ -29,7 +29,7 @@
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
  * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -75,7 +75,16 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
 
         #region Constructor
 
-        public BaseSocketConnectionCreator(BaseSocketConnectionHost host, string name, IPEndPoint localEndPoint, EncryptType encryptType, CompressionType compressionType, ICryptoService cryptoService)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseSocketConnectionCreator"/> class.
+        /// </summary>
+        /// <param name="host">The host.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="localEndPoint">The local end point.</param>
+        /// <param name="encryptType">Type of the encrypt.</param>
+        /// <param name="compressionType">Type of the compression.</param>
+        /// <param name="cryptoService">The crypto service.</param>
+        protected BaseSocketConnectionCreator(BaseSocketConnectionHost host, string name, IPEndPoint localEndPoint, EncryptType encryptType, CompressionType compressionType, ICryptoService cryptoService)
         {
 
             FHost = host;

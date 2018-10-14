@@ -24,7 +24,7 @@ namespace Hummingbird.Extension.SMSC
         public int in_endindex = 0;
         public int out_startindex = 0;
         public int out_endindex = 0;
-        public Queue MessageToBeSent = new Queue(); //Queue.Synchronized(new Queue());
+        public Queue MessageToBeSent = new Queue(); 
         public Queue SRToBeSent = Queue.Synchronized(new Queue());
         public DateTimeOffset NextCheckingDate = new DateTimeOffset(DateTime.Now);
         public bool Running;
@@ -39,7 +39,7 @@ namespace Hummingbird.Extension.SMSC
                 byte[] data = new byte[1024];
                 int i = 0;
                 int data_length = 0;
-                //Read the message in buffer;
+                //Read the message in buffer
                 if (in_endindex >= in_startindex)
                 {
                     int k = 0;
@@ -88,7 +88,7 @@ namespace Hummingbird.Extension.SMSC
 
                 //update the startindex
 
-                if (ReadOK == true)
+                if (ReadOK)
                 {
                     in_startindex = in_startindex + data_length;
                     if (in_startindex >= BUFFERSIZE) in_startindex = in_startindex - BUFFERSIZE;
@@ -114,7 +114,7 @@ namespace Hummingbird.Extension.SMSC
                 byte[] data = new byte[1024];
                 int i = 0;
                 length = 0;
-                //Read the message in buffer;
+                //Read the message in buffer
                 if (out_endindex >= out_startindex)
                 {
                     int k = 0;
@@ -163,13 +163,13 @@ namespace Hummingbird.Extension.SMSC
 
                 //update the startindex
 
-                if (ReadOK == true)
+                if (ReadOK)
                 {
                     out_startindex = out_startindex + length;
                     if (out_startindex >= BUFFERSIZE) out_startindex = out_startindex - BUFFERSIZE;
                     return data;
                 }
-                else return null;
+                else return new byte[0];
             }
 
         }

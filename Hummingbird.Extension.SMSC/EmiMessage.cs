@@ -12,27 +12,15 @@ namespace Hummingbird.Extension.SMSC
     /// </summary>
     public class EmiMessage
     {
-        private EmiMessageType type;
         /// <summary>
         /// Gets or sets the type of the message.
         /// </summary>
         /// <value>
         /// The type of message,
         /// </value>
-        public EmiMessageType Type
-        {
-            get
-            {
-                return type;
-            }
-            set
-            {
-                type = value;
-            }
-        }
+        public EmiMessageType Type { get; set; }
 
         private string rawmessage;
-        private string friendlyMessage;
 
         internal static string GetFriendlyMessage(string rawmessage)
         {
@@ -99,11 +87,11 @@ namespace Hummingbird.Extension.SMSC
                 }
                 else if (op == "60" && direction == "R")
                 {
-                    friendlyMessage = "SMS: Open Session Acknolegement";
+                    friendlyMessage = "SMS: Open Session Acknowledgment";
                 }
                 else if (op == "51" && direction == "R")
                 {
-                    friendlyMessage = "SMS: MT Acknowlegement";
+                    friendlyMessage = "SMS: MT Acknowledgment";
                 }
                 else if (op == "51" && direction == "O")
                 {
@@ -111,11 +99,11 @@ namespace Hummingbird.Extension.SMSC
                 }
                 else if (op == "52")
                 {
-                    friendlyMessage = "SMS: MO Acknowlegement";
+                    friendlyMessage = "SMS: MO Acknowledgment";
                 }
                 else if (op == "53")
                 {
-                    friendlyMessage = "SMS: SR Acknowlegement";
+                    friendlyMessage = "SMS: SR Acknowledgment";
                 }
 
 
@@ -145,36 +133,36 @@ namespace Hummingbird.Extension.SMSC
                 rawmessage = value;
                 try
                 {
-                    friendlyMessage = GetFriendlyMessage(rawmessage);
+                    FriendlyMessage = GetFriendlyMessage(rawmessage);
                 }
                 catch
                 {
-                    if (value[0] == '\x02') friendlyMessage = string.Empty;
-                    else friendlyMessage = "SMS: " + RAWMessage;
+                    if (value[0] == '\x02') FriendlyMessage = string.Empty;
+                    else FriendlyMessage = "SMS: " + RAWMessage;
 
                     if (op == "60" && direction == "O")
                     {
-                        friendlyMessage = "SMS: Open Session Request";
+                        FriendlyMessage = "SMS: Open Session Request";
                     }
                     else if (op == "60" && direction == "R")
                     {
-                        friendlyMessage = "SMS: Open Session Acknolegement";
+                        FriendlyMessage = "SMS: Open Session Acknowledgment";
                     }
                     else if (op == "51" && direction == "R")
                     {
-                        friendlyMessage = "SMS: MT Acknowlegement";
+                        FriendlyMessage = "SMS: MT Acknowledgment";
                     }
                     else if (op == "51" && direction == "O")
                     {
-                        friendlyMessage = "SMS: Empty MT (Ping)";
+                        FriendlyMessage = "SMS: Empty MT (Ping)";
                     }
                     else if (op == "52")
                     {
-                        friendlyMessage = "SMS: MO Acknowlegement";
+                        FriendlyMessage = "SMS: MO Acknowledgment";
                     }
                     else if (op == "53")
                     {
-                        friendlyMessage = "SMS: SR Acknowlegement";
+                        FriendlyMessage = "SMS: SR Acknowledgment";
                     }
 
                 }
@@ -186,7 +174,7 @@ namespace Hummingbird.Extension.SMSC
         /// Gets or sets the parsed UCP / EMI message represented by a <see cref="EmiProtocol"/> object
         /// </summary>
         /// <value>
-        /// The emi protocol object.
+        /// The EMI protocol object.
         /// </value>
         public EmiProtocol EMIProtocolObject
         {
@@ -210,22 +198,12 @@ namespace Hummingbird.Extension.SMSC
         private EmiProtocol _emiObject;
 
         /// <summary>
-        /// Gets or sets the translated EMI protocol to a humain readable message.
+        /// Gets or sets the translated EMI protocol to a human readable message.
         /// </summary>
         /// <value>
         /// The friendly message.
         /// </value>
-        public string FriendlyMessage
-        {
-            get
-            {
-                return friendlyMessage;
-            }
-            set
-            {
-                friendlyMessage = value;
-            }
-        }
+        public string FriendlyMessage { get; set; }
         /// <summary>
         /// Gets or sets the create date.
         /// </summary>
