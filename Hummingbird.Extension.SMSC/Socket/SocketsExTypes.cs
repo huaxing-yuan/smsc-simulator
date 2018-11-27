@@ -65,33 +65,31 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
     /// </summary>
     public class ReconnectAttemptException : Exception
     {
-        private int FAttempt;
-        private bool FMaxReached;
-        private IBaseSocketConnectionCreator FCreator;
-
         public ReconnectAttemptException(string message, IBaseSocketConnectionCreator creator, Exception innerException, int attempt, bool maxReached)
             : base(message, innerException)
         {
-            FAttempt = attempt;
-            FMaxReached = maxReached;
-            FCreator = creator;
+            Attempt = attempt;
+            MaxReached = maxReached;
+            Creator = creator;
         }
 
-        public int Attempt
+        public int Attempt { get; }
+
+        public bool MaxReached { get; }
+
+        public IBaseSocketConnectionCreator Creator { get; }
+
+        public ReconnectAttemptException()
         {
-            get { return FAttempt; }
         }
 
-        public bool MaxReached
+        public ReconnectAttemptException(string message) : base(message)
         {
-            get { return FMaxReached; }
         }
 
-        public IBaseSocketConnectionCreator Creator
+        public ReconnectAttemptException(string message, Exception innerException) : base(message, innerException)
         {
-            get { return FCreator; }
         }
-
     }
 
     /// <summary>
@@ -100,6 +98,14 @@ namespace ALAZ.SystemEx.NetEx.SocketsEx
     public class BadDelimiterException : Exception
     {
         public BadDelimiterException(string message) : base(message) { }
+
+        public BadDelimiterException()
+        {
+        }
+
+        public BadDelimiterException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 
     /// <summary>

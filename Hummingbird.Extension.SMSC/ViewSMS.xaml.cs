@@ -9,8 +9,13 @@ using Hummingbird.TestFramework.Messaging;
 namespace Hummingbird.Extension.SMSC
 {
     /// <summary>
-    /// Interaction logic for ViewSMS.xaml
+    /// The SMS view
     /// </summary>
+    /// <remarks>
+    /// <para>This is an example of CustomMessageViewer to view messages sent and received by this SMS-C Simulator.</para>
+    /// <para>To define the View, the class must inherent from <see cref="CustomMessageViewer"/>, <see cref="MetadataIdAttribute"/> it tagged to the class, indicates a list of message type can be viewed by this View.</para>
+    /// <para>Typically, the MedatataId contains a string array that each string represents a <see cref="AbstractMetadata.Id"/>. By the restrictions of Attributes in C# programming language, Guid can not be used as Attribute parameter, that's why string is used intead.</para>
+    /// </remarks>
     /// <seealso cref="Hummingbird.TestFramework.Extensibility.CustomMessageViewer" />
     /// <seealso cref="System.Windows.Markup.IComponentConnector" />
 
@@ -463,7 +468,7 @@ namespace Hummingbird.Extension.SMSC
 
         #endregion
 
-        #region Analyse
+        #region Analyze
 
         private static void GetAdc(string AdC, string OAdC, out string sAdC, out string sOAdC)
         {
@@ -839,7 +844,7 @@ namespace Hummingbird.Extension.SMSC
                     return "06 - Urgency Indicator";
                 case "07":
                     Value = GetValueFrom(ARS, v);
-                    return "07 - Acknowledgement Request";
+                    return "07 - Acknowledgment Request";
                 case "08":
                     Value = GetValueFrom(MUS, v);
                     return "08 - Message Updating";
@@ -1016,9 +1021,9 @@ namespace Hummingbird.Extension.SMSC
         /// <param name="message">The <see cref="T:Hummingbird.TestFramework.Messaging.Message" /> containing the Request, Response, or the Tag</param>
         public override void ParseMessage(Message message)
         {
-            //Message.Tag is the RAW trame message
+            //Message.Tag is the RAW UCP message
             string tag = message.RequestText;
-            var obj = new EmiProtocol(tag, (EmiService.referredServer));
+            var obj = new EmiProtocol(tag, (EmiService.ReferredServer));
             ParseObject(obj);
         }
     }

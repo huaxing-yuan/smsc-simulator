@@ -18,8 +18,11 @@ namespace Hummingbird.Extension.SMSC
     {
         public ISocketConnection Connection;
         public int BUFFERSIZE;
-        public byte[] buffer_in; // 1MB of buffer for MT
-        public byte[] buffer_out; // 1MB of buffer for MO and SR
+
+        // 1MB of buffer for MT
+        public byte[] buffer_in;
+        // 1MB of buffer for MO and SR
+        public byte[] buffer_out; 
         public int in_startindex = 0;
         public int in_endindex = 0;
         public int out_startindex = 0;
@@ -207,7 +210,7 @@ namespace Hummingbird.Extension.SMSC
                         {
                             Direction = MessageDirection.None,
                             Status = MessageStatus.Abandoned,
-                            Title = "SMS message buffer is full, some message were dropped.",
+                            Title = "SMS message buffer is full, some messages were dropped.",
                         });
                         warned = true;
                     }
@@ -244,7 +247,7 @@ namespace Hummingbird.Extension.SMSC
                         {
                             Direction = MessageDirection.None,
                             Status = MessageStatus.Abandoned,
-                            Title = "SMS message buffer is full, some message were dropped.",
+                            Title = "SMS message buffer is full, some messages were dropped.",
                         });
                         warned = true;
                     }

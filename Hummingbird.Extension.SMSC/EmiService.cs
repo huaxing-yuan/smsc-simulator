@@ -20,7 +20,7 @@ namespace Hummingbird.Extension.SMSC
         private static List<ISocketConnection> connections = new List<ISocketConnection>();
         private static int count = 0;
         internal readonly static List<MessageBuffers> Buffers = new List<MessageBuffers>();
-        internal static SmsServer referredServer { get; private set; }
+        internal static SmsServer ReferredServer { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmiService"/> class.
@@ -28,7 +28,7 @@ namespace Hummingbird.Extension.SMSC
         /// <param name="server">The server.</param>
         public EmiService(SmsServer server)
         {
-            referredServer = server;
+            ReferredServer = server;
         }
 
         public void OnConnected(ConnectionEventArgs e)
@@ -50,7 +50,7 @@ namespace Hummingbird.Extension.SMSC
                     Status = MessageStatus.None
                 });
                 totalConnections++;
-                referredServer.SendRequestEnabled(true, null);
+                ReferredServer.SendRequestEnabled(true, null);
                 Thread t = new Thread(RunReceiver)
                 {
                     IsBackground = true
@@ -114,7 +114,7 @@ namespace Hummingbird.Extension.SMSC
             }
             if (totalConnections == 0)
             {
-                referredServer.SendRequestEnabled(false, "No more alive socket connections to the SMSC. before send MOs, you must connect an EMI client");
+                ReferredServer.SendRequestEnabled(false, "No more alive socket connections to the SMSC. before send MOs, you must connect an EMI client");
             }
         }
 
@@ -137,7 +137,7 @@ namespace Hummingbird.Extension.SMSC
                     EmiProtocol eo;
                     try
                     {
-                        eo = new EmiProtocol(msg, referredServer);
+                        eo = new EmiProtocol(msg, ReferredServer);
                         string operation = eo.OT;
                         string response = string.Empty;
                         string SR = string.Empty;
@@ -169,16 +169,16 @@ namespace Hummingbird.Extension.SMSC
                                 else
                                 {
                                     //HERE Check The return type
-                                    switch (referredServer.mtBehavior)
+                                    switch (ReferredServer.mtBehavior)
                                     {
                                         case MTBehavior.ACK:
                                             response = eo.CreateACK51(true, string.Empty, string.Empty);
                                             m2.Type = EmiMessageType.MT_ACK;
 
                                             //CHECK if SR is demanded
-                                            if (referredServer.srActive)
+                                            if (ReferredServer.srActive)
                                             {
-                                                SR = eo.CreateSRForMT(referredServer.srDst, referredServer.srRsn);
+                                                SR = eo.CreateSRForMT(ReferredServer.srDst, ReferredServer.srRsn);
                                             }
                                             else
                                             {
@@ -187,7 +187,7 @@ namespace Hummingbird.Extension.SMSC
 
                                             break;
                                         case MTBehavior.NACK:
-                                            response = eo.CreateACK51(false, referredServer.nackCode.ToString(), string.Empty);
+                                            response = eo.CreateACK51(false, ReferredServer.nackCode.ToString(), string.Empty);
                                             m2.Type = EmiMessageType.MT_NACK;
                                             break;
                                         case MTBehavior.Nothing:
@@ -229,21 +229,21 @@ namespace Hummingbird.Extension.SMSC
                             AbstractMetadata metadata = null;
                             if (m.Type == EmiMessageType.MT)
                             {
-                                metadata = referredServer.MTMetadata;
+                                metadata = ReferredServer.MTMetadata;
                             }
                             else if (m.Type == EmiMessageType.SESSION)
                             {
-                                metadata = referredServer.SSMetadata;
+                                metadata = ReferredServer.SSMetadata;
                             }
 
 
                             //Do not log if hidePingACK is true and MessageType is Ping or ACK.
-                            if (!(referredServer.hidePingACK && (m.Type == EmiMessageType.PING || m.Type == EmiMessageType.MO_ACK || m.Type == EmiMessageType.SR_ACK)))
+                            if (!(ReferredServer.hidePingACK && (m.Type == EmiMessageType.PING || m.Type == EmiMessageType.MO_ACK || m.Type == EmiMessageType.SR_ACK)))
                             {
                                 MessageQueue.Add(
                                     new Message()
                                     {
-                                        Metadata = referredServer.MTMetadata,
+                                        Metadata = ReferredServer.MTMetadata,
                                         Title = m.FriendlyMessage,
                                         Direction = MessageDirection.Incoming,
                                         RequestObject = m.EMIProtocolObject,
@@ -275,9 +275,9 @@ namespace Hummingbird.Extension.SMSC
                                     {
                                         Type = EmiMessageType.SR,
                                         Direction = 0,
-                                        CreateDate = new DateTimeOffset(DateTime.Now).AddSeconds(referredServer.srDelay),
+                                        CreateDate = new DateTimeOffset(DateTime.Now).AddSeconds(ReferredServer.srDelay),
                                         RAWMessage = SR,
-                                        ExpectedSendDate = new DateTimeOffset(DateTime.Now).AddSeconds(referredServer.srDelay),
+                                        ExpectedSendDate = new DateTimeOffset(DateTime.Now).AddSeconds(ReferredServer.srDelay),
                                         EMIProtocolObject = new EmiProtocol(SR)
                                     };
 
@@ -345,21 +345,21 @@ namespace Hummingbird.Extension.SMSC
 
                         if (message.Type == EmiMessageType.MO)
                         {
-                            metadata = referredServer.MOMetadata;
+                            metadata = ReferredServer.MOMetadata;
                         }
                         else if (message.Type == EmiMessageType.SR)
                         {
-                            metadata = referredServer.SRMetadata;
+                            metadata = ReferredServer.SRMetadata;
                         }
                         else
                         {
-                            metadata = referredServer.MTMetadata;
+                            metadata = ReferredServer.MTMetadata;
                         }
                         workingbuffer.Connection.BeginSend(MessageBuffers.StringToByte(message.RAWMessage));
 
                         
                         //If HidePingACK is True and MessageType = MT_ACK. do not add to message list.
-                        if (!(referredServer.hidePingACK && (message.Type != EmiMessageType.MT_ACK || message.Type != EmiMessageType.PING_ACK)))
+                        if (!(ReferredServer.hidePingACK && (message.Type != EmiMessageType.MT_ACK || message.Type != EmiMessageType.PING_ACK)))
                         {
                             Message log = message.Message ?? new Message();
                             log.Metadata = metadata;
@@ -396,7 +396,7 @@ namespace Hummingbird.Extension.SMSC
                 if (workingbuffer.NextCheckingDate >= currentdate)
                 {
                     //Why sleep so long?
-                    //because if we dont sleep, there will be a "Lock" at SRToBeSent
+                    //because if we don't sleep, there will be a "Lock" at SRToBeSent
                     //to check the first SR to be sent
                     //the "Lock" will block another thread:
                     // (MT process)

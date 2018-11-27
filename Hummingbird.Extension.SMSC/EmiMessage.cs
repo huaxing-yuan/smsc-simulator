@@ -26,8 +26,8 @@ namespace Hummingbird.Extension.SMSC
         {
             string friendlyMessage = string.Empty;
             string op = "0";
-            string to = "0";
-            string from = "0";
+            string to ;
+            string from ;
             string direction = "O";
             try
             {
@@ -127,8 +127,6 @@ namespace Hummingbird.Extension.SMSC
             set
             {
                 string op = "0";
-                string to = "0";
-                string from = "0";
                 string direction = "O";
                 rawmessage = value;
                 try

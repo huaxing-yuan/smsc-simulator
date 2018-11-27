@@ -4,7 +4,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Hummingbird.Extension.SMSC {
+namespace Hummingbird.Extension.SMSC
+{
     /// <summary>
     /// A SMS Mobile Originated message. This message represents a SMS is send from a terminal to a Large Account.
     /// </summary>

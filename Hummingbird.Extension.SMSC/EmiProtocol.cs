@@ -266,7 +266,7 @@ namespace Hummingbird.Extension.SMSC
         {
             int localTRN = TRN_MO++;
             TRN_MO = TRN_MO % 100;
-            if (AdC == string.Empty || (NT == "0" || NT == string.Empty)) return string.Empty; // IS PING OR SR Is not requried.
+            if (AdC == string.Empty || (NT == "0" || NT == string.Empty)) return string.Empty; // IS PING OR SR Is not required.
 
             if (NT == "2" && referedServer.srDst == 0) return string.Empty; // IF Nt = Non-delivery notification and SRDst = "0 - delivered" return an empty string
             string textSR = string.Format(SRText, AdC, OAdC);
@@ -298,7 +298,7 @@ namespace Hummingbird.Extension.SMSC
         internal string CreateACK51(bool isACK, string NACK_CODE, string descriptionError)
         {
 
-            //SCTS is not datetime.now, but we have a little trick.
+            //SCTS is not DateTime.Now, but we have a little trick.
             //from one oAdc to one Adc in the same second, we cannot return the same SCTS because that will lead 2 SMS with the same 
             this.SCTS = GetRealSCTS(this.OAdC, this.AdC, new DateTimeOffset(DateTime.Now));
 
@@ -369,27 +369,28 @@ namespace Hummingbird.Extension.SMSC
             int iNB = 0;
             if (format == MessageFormat.Unicode)
             {
-                //According to Spec EMI. if we want to send SMS coded to unicode, the MT must set to 4.
+                //According to Spec EMI. if we want to send SMS coded to Unicode, the MT must set to 4.
                 Msg = TextToUnicodeHexString(text);
                 iNB = Msg.Length;
                 NB = iNB.ToString();
                 Mt = "4";
-                Xser = "020108"; // En unicode non compressé
+                // Unicode not compressed
+                Xser = "020108"; 
             }
             else if (format == MessageFormat.GSM7)
             {
-                Msg = TextToGSM8HexString(text);// septetToOctet(stringToSeptet(text));
+                Msg = TextToGSM8HexString(text);
                 iNB = Msg.Length;
                 NB = iNB.ToString();
-                Xser = "020100"; // En GSM 7bit noncompressé
+                Xser = "020100"; // En GSM 7bit Not Compressed 
             }
             else
             {
-                // Par defaut on encode en GSM
+                //We encoded in GSM by default
                 //According to Spec EMI. if we want to send SMS coded to 8-bit, the MT must set to 4.
                 Msg = TextToGSM8HexString(text);
                 Mt = "4";
-                Xser = "0201F4"; // En GSM non compresse
+                Xser = "0201F4"; // GSM format not compressed
                 NB = string.Empty;
             }
             string mo = STX + localTRN.ToString("00") + "/LLLLL/O/52/" + AdC + "/" + OAdC + "/////////////" + SCTS.ToString(SCTSFormat) + "////" + Mt + "/" + NB + "/" + Msg + "//////////" + Xser + "///SS" + ETX;
@@ -580,7 +581,7 @@ namespace Hummingbird.Extension.SMSC
         /// <summary>
         /// Converts a byte to hexadecimal string.
         /// </summary>
-        /// <param name="b">The byte.</param>
+        /// <param name="b">The byte array to convert.</param>
         /// <returns></returns>
         static private string ByteToHexString(byte[] b)
         {
@@ -801,10 +802,10 @@ namespace Hummingbird.Extension.SMSC
         }
 
 
-        #region Charactor Tables
+        #region Character Tables
         //static members        
         /// <summary>
-        /// The iso to unicode table
+        /// The ISO to Unicode table
         /// </summary>
         static readonly char[] isoToUnicode =
         {
@@ -843,7 +844,7 @@ namespace Hummingbird.Extension.SMSC
         };
 
         /// <summary>
-        /// The gsm 7-bit char to unicode convert table
+        /// The GSM 7-bit char to Unicode convert table
         /// </summary>
         static readonly char[] GSM7BitToUnicode =
         {
@@ -958,15 +959,15 @@ namespace Hummingbird.Extension.SMSC
     public enum MessageFormat
     {
         /// <summary>
-        /// The unicode
+        /// Unicode format
         /// </summary>
         Unicode,
         /// <summary>
-        /// The gsm 7-bit
+        /// The GSM 7-bit format
         /// </summary>
         GSM7,
         /// <summary>
-        /// The gsm 8-bit
+        /// The GSM 8-bit format
         /// </summary>
         GSM8
     };

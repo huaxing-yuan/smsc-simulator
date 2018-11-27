@@ -73,7 +73,7 @@ namespace Hummingbird.Extension.SMSC
         {
             this.Name = "SMS Center";
             this.StrongName = new Guid("9908954e-c54d-4085-b8ee-bc3e7e676f90");
-            this.Description = "A standard SMS Center server usin EMI protocol.";
+            this.Description = "A standard SMS Center server using EMI protocol.";
             this.SettingPageType = null;
             this.Parameters = new Dictionary<string, Parameter>
             {
@@ -144,10 +144,10 @@ namespace Hummingbird.Extension.SMSC
             AckMetadata = new ResponseMetadata()
             {
                 Id = new Guid("982edf07-b4f0-4d92-880d-e3ebc3aa09f3"),
-                Description = "Acknoledgement of the SMS",
+                Description = "Acknowledgment of the SMS",
                 ApplicationName = "Generic",
                 ServiceCategory = "SMS Center",
-                ServiceName = "Sent SMS Acknoledgement",
+                ServiceName = "Sent SMS Acknowledgment",
                 RequestType = typeof(EmiProtocol),
             };
 
@@ -238,32 +238,36 @@ namespace Hummingbird.Extension.SMSC
                 {
                     SmsMo request = (SmsMo)requestObject;
                     string messagemo = EmiProtocol.CreateMO(request.Sender, request.Receiver, request.MessageText, new DateTimeOffset(DateTime.Now), request.MessageFormat, MT.AlphaNumeric);
-                    EmiMessage mm = new EmiMessage();
-                    mm.CreateDate = new DateTimeOffset(DateTime.Now);
-                    mm.Direction = 0;
-                    mm.RAWMessage = messagemo;
-                    mm.FriendlyMessage = "SMS MO:" + request.Sender + " -> " + request.Receiver + " : " + request.MessageText + " (" + request.MessageText.Length + " chars)";
-                    mm.Type = EmiMessageType.MO;
-                    mm.Message = message;
+                    EmiMessage mm = new EmiMessage
+                    {
+                        CreateDate = new DateTimeOffset(DateTime.Now),
+                        Direction = 0,
+                        RAWMessage = messagemo,
+                        FriendlyMessage = $"SMS MO: {request.Sender} -> {request.Receiver} : {request.MessageText} ({request.MessageText.Length } chars)",
+                        Type = EmiMessageType.MO,
+                        Message = message
+                    };
                     EmiService.SendMOSRACK(mm, null);
                 }
                 else if (requestMetadata == SRMetadata)
                 {
                     SmsSr request = (SmsSr)requestObject;
                     string messagemo = EmiProtocol.CreateSR(request.OAdC, request.AdC, request.SCTS, request.Dst.ToString(), request.Rsn.ToString(), request.Text);
-                    EmiMessage mm = new EmiMessage();
-                    mm.CreateDate = new DateTimeOffset(DateTime.Now);
-                    mm.Direction = 0;
-                    mm.RAWMessage = messagemo;
-                    mm.FriendlyMessage = "SMS SR:" + request.OAdC + " -> " + request.AdC + " : " + request.Text + " (" + request.Text.Length + " chars)";
-                    mm.Type = EmiMessageType.SR;
-                    mm.Message = message;
+                    EmiMessage mm = new EmiMessage
+                    {
+                        CreateDate = new DateTimeOffset(DateTime.Now),
+                        Direction = 0,
+                        RAWMessage = messagemo,
+                        FriendlyMessage = $"SMS SR: {request.OAdC} -> {request.AdC} : {request.Text} ({request.Text.Length} chars)",
+                        Type = EmiMessageType.SR,
+                        Message = message
+                    };
                     EmiService.SendMOSRACK(mm, null);
                 }
             }
             else
             {
-                throw new InvalidOperationException ("You must have an active SMS Connection before sending SMSMO Messages.");
+                throw new InvalidOperationException("You must have an active SMS Connection before sending SMS MO Messages.");
             }
         }
 
