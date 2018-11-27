@@ -16,7 +16,7 @@ namespace Hummingbird.Extension.SMSC
     /// <seealso cref="Hummingbird.TestFramework.Services.AbstractServer" />
     /// <seealso cref="Hummingbird.TestFramework.Services.ISendRequest" />
     [SingletonServiceAttribute]
-    public class SmsServer : AbstractServer, ISendRequest
+    public sealed class SmsServer : AbstractServer, ISendRequest
     {
 
 
@@ -57,11 +57,11 @@ namespace Hummingbird.Extension.SMSC
         internal string largeAccountPassword;
         internal bool hidePingACK;
 
-        internal ResponseMetadata MTMetadata;
-        internal ResponseMetadata SSMetadata;
-        internal ResponseMetadata AckMetadata;
-        internal RequestMetadata MOMetadata;
-        internal RequestMetadata SRMetadata;
+        internal AbstractMetadata MTMetadata;
+        internal AbstractMetadata SSMetadata;
+        internal AbstractMetadata AckMetadata;
+        internal AbstractMetadata MOMetadata;
+        internal AbstractMetadata SRMetadata;
 
         SocketServer sersock = null;
         internal static EmiService Emiservice { get; private set; }
@@ -72,7 +72,7 @@ namespace Hummingbird.Extension.SMSC
         public SmsServer()
         {
             this.Name = "SMS Center";
-            this.StrongName = new Guid("9908954e-c54d-4085-b8ee-bc3e7e676f90");
+            this.Id = new Guid("9908954e-c54d-4085-b8ee-bc3e7e676f90");
             this.Description = "A standard SMS Center server using EMI protocol.";
             this.SettingPageType = null;
             this.Parameters = new Dictionary<string, Parameter>
@@ -98,7 +98,7 @@ namespace Hummingbird.Extension.SMSC
             src.CacheOption = BitmapCacheOption.OnLoad;
             src.EndInit();
             this.ImageSource = src;
-            MOMetadata = new RequestMetadata()
+            MOMetadata = new AbstractMetadata()
             {
                 Id = new Guid("2bee75e3-527d-48ec-9bad-c7b258259032"),
                 Description = "EMI Protocol SMS Mobile originated (MO) message (UCP 52)",
@@ -106,9 +106,10 @@ namespace Hummingbird.Extension.SMSC
                 ApplicationName = "Generic",
                 ServiceCategory = "SMS Center",
                 ServiceName = "Send SMS MO",
+                ReferencedService = this,
             };
 
-            SRMetadata = new RequestMetadata()
+            SRMetadata = new AbstractMetadata()
             {
                 Id = new Guid("35AECAC8-3B1D-41BE-9CEA-53E78CE1F25C"),
                 Description = "EMI Protocol SMS Status Report (MO) message (UCP 53)",
@@ -116,12 +117,13 @@ namespace Hummingbird.Extension.SMSC
                 ApplicationName = "Generic",
                 ServiceCategory = "SMS Center",
                 ServiceName = "Send SMS Status Report",
+                ReferencedService = this,
             };
 
             this.SupportedRequests.Add(MOMetadata);
             this.SupportedRequests.Add(SRMetadata);
 
-            MTMetadata = new ResponseMetadata()
+            MTMetadata = new AbstractMetadata()
             {
                 Id = new Guid("5b0007e7-db18-45f7-b0ff-beeea52fd7d4"),
                 Description = "EMI Protocol SMS Mobile terminated (MT) message (UCP 51)",
@@ -129,9 +131,10 @@ namespace Hummingbird.Extension.SMSC
                 ServiceCategory = "SMS Center",
                 ServiceName = "Send SMS MT",
                 RequestType = typeof(EmiProtocol),
+                ReferencedService = this,
             };
 
-            SSMetadata = new ResponseMetadata()
+            SSMetadata = new AbstractMetadata()
             {
                 Id = new Guid("461890fe-3aab-4c96-ba04-f3c0e57088a8"),
                 Description = "EMI Protocol SMS Mobile terminated (MT) message (UCP 60)",
@@ -139,9 +142,10 @@ namespace Hummingbird.Extension.SMSC
                 ServiceCategory = "SMS Center",
                 ServiceName = "Open SMS Session",
                 RequestType = typeof(EmiProtocol),
+                ReferencedService = this,
             };
 
-            AckMetadata = new ResponseMetadata()
+            AckMetadata = new AbstractMetadata()
             {
                 Id = new Guid("982edf07-b4f0-4d92-880d-e3ebc3aa09f3"),
                 Description = "Acknowledgment of the SMS",
@@ -149,6 +153,7 @@ namespace Hummingbird.Extension.SMSC
                 ServiceCategory = "SMS Center",
                 ServiceName = "Sent SMS Acknowledgment",
                 RequestType = typeof(EmiProtocol),
+                ReferencedService = this,
             };
 
             this.SupportedResponses.Add(MTMetadata);
@@ -226,57 +231,68 @@ namespace Hummingbird.Extension.SMSC
 
         void ISendRequest.SendRequest(RequestData requestData)
         {
-            RequestMetadata requestMetadata = requestData.Metadata;
-            object requestObject = requestData.Data;
-            Message message = new Message();
-
-            if (EmiService.Buffers.Count > 0)
-            {
-                message.Direction = MessageDirection.Outgoing;
-                message.Status = MessageStatus.Pending;
-                if (requestMetadata == MOMetadata)
-                {
-                    SmsMo request = (SmsMo)requestObject;
-                    string messagemo = EmiProtocol.CreateMO(request.Sender, request.Receiver, request.MessageText, new DateTimeOffset(DateTime.Now), request.MessageFormat, MT.AlphaNumeric);
-                    EmiMessage mm = new EmiMessage
-                    {
-                        CreateDate = new DateTimeOffset(DateTime.Now),
-                        Direction = 0,
-                        RAWMessage = messagemo,
-                        FriendlyMessage = $"SMS MO: {request.Sender} -> {request.Receiver} : {request.MessageText} ({request.MessageText.Length } chars)",
-                        Type = EmiMessageType.MO,
-                        Message = message
-                    };
-                    EmiService.SendMOSRACK(mm, null);
-                }
-                else if (requestMetadata == SRMetadata)
-                {
-                    SmsSr request = (SmsSr)requestObject;
-                    string messagemo = EmiProtocol.CreateSR(request.OAdC, request.AdC, request.SCTS, request.Dst.ToString(), request.Rsn.ToString(), request.Text);
-                    EmiMessage mm = new EmiMessage
-                    {
-                        CreateDate = new DateTimeOffset(DateTime.Now),
-                        Direction = 0,
-                        RAWMessage = messagemo,
-                        FriendlyMessage = $"SMS SR: {request.OAdC} -> {request.AdC} : {request.Text} ({request.Text.Length} chars)",
-                        Type = EmiMessageType.SR,
-                        Message = message
-                    };
-                    EmiService.SendMOSRACK(mm, null);
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("You must have an active SMS Connection before sending SMS MO Messages.");
-            }
+            InternalSendRequest(requestData);
         }
 
         void ISendRequest.SendRequestAsync(RequestData requestData, PropertyChangedEventHandler propertyChanged)
         {
-            SendRequest(requestData);
+            InternalSendRequest(requestData);
         }
 
+        void InternalSendRequest(RequestData requestData)
+        {
+            AbstractMetadata requestMetadata = requestData.Metadata;
+            object requestObject = requestData.Data;
+            Message message = requestData.ReferencedMessage;
 
+            message.Direction = MessageDirection.Outgoing;
+            message.Status = MessageStatus.Pending;
+            EmiMessage mm = null;
+            if (requestMetadata == MOMetadata)
+            {
+                SmsMo request = (SmsMo)requestObject;
+                string messagemo = EmiProtocol.CreateMO(request.Sender, request.Receiver, request.MessageText, new DateTimeOffset(DateTime.Now), request.MessageFormat, MT.AlphaNumeric);
+                mm = new EmiMessage
+                {
+                    CreateDate = new DateTimeOffset(DateTime.Now),
+                    Direction = 0,
+                    RAWMessage = messagemo,
+                    FriendlyMessage = $"SMS MO: {request.Sender} -> {request.Receiver} : {request.MessageText} ({request.MessageText.Length } chars)",
+                    Type = EmiMessageType.MO,
+                    Message = message
+                };
+                message.Title = mm.FriendlyMessage;
+                message.RequestText = mm.RAWMessage;
+            }
+            else if (requestMetadata == SRMetadata)
+            {
+                SmsSr request = (SmsSr)requestObject;
+                string messagemo = EmiProtocol.CreateSR(request.OAdC, request.AdC, request.SCTS, request.Dst.ToString(), request.Rsn.ToString(), request.Text);
+                mm = new EmiMessage
+                {
+                    CreateDate = new DateTimeOffset(DateTime.Now),
+                    Direction = 0,
+                    RAWMessage = messagemo,
+                    FriendlyMessage = $"SMS SR: {request.OAdC} -> {request.AdC} : {request.Text} ({request.Text.Length} chars)",
+                    Type = EmiMessageType.SR,
+                    Message = message
+                };
+                message.Title = mm.FriendlyMessage;
+                message.RequestText = mm.RAWMessage;
+
+            }
+
+            if (EmiService.Buffers.Count > 0)
+            {
+                EmiService.SendMOSRACK(mm, null);
+            }
+            else
+            {
+                message.Status = MessageStatus.Failed;
+                message.ErrorMessage = "You must have an active SMS Connection before sending SMS MO Messages.";
+                throw new InvalidOperationException("You must have an active SMS Connection before sending SMS MO Messages.");
+            }
+        }
     }
 
 

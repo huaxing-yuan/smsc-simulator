@@ -361,6 +361,7 @@ namespace Hummingbird.Extension.SMSC
                         //If HidePingACK is True and MessageType = MT_ACK. do not add to message list.
                         if (!(ReferredServer.hidePingACK && (message.Type != EmiMessageType.MT_ACK || message.Type != EmiMessageType.PING_ACK)))
                         {
+
                             Message log = message.Message ?? new Message();
                             log.Metadata = metadata;
                             log.Title = message.FriendlyMessage;
@@ -368,7 +369,7 @@ namespace Hummingbird.Extension.SMSC
                             log.RequestText = message.RAWMessage;
                             log.Status = MessageStatus.Sent;
                             log.Tag = message.RAWMessage;
-                            MessageQueue.Add(log);
+                            if(message.Message == null) MessageQueue.Add(log);
                         }
                         
                     }
