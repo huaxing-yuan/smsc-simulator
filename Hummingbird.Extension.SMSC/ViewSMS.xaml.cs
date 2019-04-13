@@ -85,7 +85,7 @@ namespace Hummingbird.Extension.SMSC
             }
             catch
             {
-                viewAnalyse.Items.Add(new Variable("Error", "Your EMI Frame is not valid"));
+                viewAnalyse.Items.Add(new Variable("Error", "Your EMI frame is not valid"));
             }
         }
 

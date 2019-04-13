@@ -15,7 +15,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Text="UCP Trame:" Margin="10,5" />
+        <TextBlock Text="UCP Frame:" Margin="10,5" />
         <TextBox Grid.Column="1" VerticalAlignment="Center" Grid.ColumnSpan="2" IsReadOnly="True" x:Name="txtTrameEMI"/>
         <ListView Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" x:Name="viewAnalyse" >
             <ListView.View>
