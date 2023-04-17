@@ -1,5 +1,7 @@
 # SMS-C Simulator
 
+## ! This repo is archieve and will be ported to Atmosephere Studio based on Atmosphere core Framework.
+
 This extension of Hummingbird Test Framework implements a portion of UCP-EMI protocol, it can be used as a SMS-C simulator to receive MT messages.
 The SMS-C simulator can also sent MT Acknowledges, and SR Messages automatically.
 
@@ -10,7 +12,6 @@ While this extension is installed to Hummingbird App, you can find:
 2. A Custom Message Viewer, automatically shown when you want to view a received message.
 3. MO, SR requests can be sent through socket when a client is connected. (When multiple socket clients are connected, MO and SR are always sent to the first client)
 
-![Build status](https://hummingbird.visualstudio.com/_apis/public/build/definitions/e4481dd4-13a9-413a-bbc3-905032a1726a/13/badge)
 
 ## Aimed for demonstration
 This extension is aimed to demonstrate the extensibility of Hummingbird Test Framework:
@@ -28,14 +29,10 @@ The extension is build from the existing code of my previous project from 2010 t
 
 ## Licenses
 You can use these source code to:
- - Demonstrate Hummingbird and Hummingbird Test Framework
- - Use this extension with Hummingbird / Hummingbird Test Framework within your organization for test.
- - Improve the extension, implement more UCP operations and use it with Hummingbird / Hummingbird Test Framework.
- - All modifications of code must ensure that the code is aimed to running on Hummingbird Test Framework.
+ - Use with Atmosphere Studio / Core Framework within your organization for test.
 
- You must not:
+You must not:
   - Sell this extension to a 3rd party person or organization
-  - Doing anything with the binary / source code with another software than Hummingbird / Hummingbird Test Framework
 
 ## Disclaimer
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
