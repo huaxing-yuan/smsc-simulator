@@ -1,6 +1,6 @@
 # SMS-C Simulator
 
-## ! This repo is archieve and will be ported to Atmosephere Studio based on Atmosphere core Framework.
+## ! This repo is archieved and will be ported to Atmosephere Studio based on Atmosphere core Framework.
 
 This extension of Hummingbird Test Framework implements a portion of UCP-EMI protocol, it can be used as a SMS-C simulator to receive MT messages.
 The SMS-C simulator can also sent MT Acknowledges, and SR Messages automatically.
